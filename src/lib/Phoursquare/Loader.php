@@ -42,7 +42,7 @@ class Phoursquare_Loader {
      * 
      * @var string
      */
-    protected static $_namespaceSepereator = '_';
+    protected static $_namespaceSeparator = '_';
 
     /**
      *
