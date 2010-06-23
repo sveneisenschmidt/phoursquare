@@ -49,7 +49,7 @@
     $friends = $myself->getFriends()
 
     // OR
-    // Uses thr User from Authetication
+    // Uses the User from Authentication
     $friends = $service->getFriends();
 
     // OR
