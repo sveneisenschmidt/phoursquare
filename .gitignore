@@ -2,3 +2,5 @@ src/library/Zend
 src/library/Zend/*
 tests
 tests/*
+phoursquare.php
+functions.php
