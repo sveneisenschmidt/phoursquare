@@ -145,10 +145,10 @@ abstract class Phoursquare_Service
      * @param string $fromUserId
      * @return Phoursquare_ResultSet
      */
-    public function getFriends($fromUserId)
+    public function getFriends($fromUserId = null)
     {
         $data = $this->getRequest()
-                     ->fetchFriends((string)$fromUserId);
+                     ->fetchFriends($fromUserId);
 
         if(!property_exists($data, 'friends')) {
             throw new Exception('No valid friends response returned.');
