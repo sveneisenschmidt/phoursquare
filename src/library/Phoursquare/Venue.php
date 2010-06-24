@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category ResultSet
+ * @category Venue
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,34 +35,83 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_AbstractResultSet
- * @uses Phoursquare_User_Friend
  */
-
-require_once 'Phoursquare/AbstractResultSet.php';
-require_once 'Phoursquare/User/Friend.php';
 
 /**
- * Phoursquare_UsersList
+ * Phoursquare_Venue
  *
- * @category ResultSet
+ * @category Venue
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_UsersList extends Phoursquare_AbstractResultSet
+class Phoursquare_Venue
 {
+    /**
+     *
+     * @var Phoursquare_Checkin
+     */
+    protected $_relatedCheckin;
 
     /**
      *
-     * @return Phoursquare_User_Friend
+     * @var Phoursquare_Service
      */
-    protected function _parse($key)
+    protected $_service;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $_id;
+
+
+    /**
+     *
+     * @param stdClass $data
+     * @param Phoursquare_Service $service
+     */
+    public function __construct(stdClass $data, Phoursquare_Service $service)
     {
-        return $this->getService()
-                    ->parseUser($key);
+        $this->_service = $service;
+
+        if(!property_exists($data, 'id')) {
+            throw new Exception('Missing \'id\' poperty.');
+        }
+
+        if(property_exists($data, 'id')) {
+            $this->_id = (int) $data->id;
+        }
+    }
+
+    /**
+     *
+     * @return Phoursquare_Service
+     */
+    public function getService()
+    {
+        return $this->_service;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Service $checkin
+     */
+    public function setRelatedCheckin($checkin)
+    {
+        $this->_relatedCheckin = $checkin;
+        return $this;
+    }
+
+    /**
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->_id;
     }
 
 }

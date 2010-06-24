@@ -36,14 +36,14 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phoursquare_AbstractResultSet
- * @uses Phoursquare_User_Friend
+ * @uses Phoursquare_Checkin
  */
 
 require_once 'Phoursquare/AbstractResultSet.php';
-require_once 'Phoursquare/User/Friend.php';
+require_once 'Phoursquare/Checkin.php';
 
 /**
- * Phoursquare_UsersList
+ * Phoursquare_CheckinList
  *
  * @category ResultSet
  * @package Phoursquare
@@ -52,17 +52,49 @@ require_once 'Phoursquare/User/Friend.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_UsersList extends Phoursquare_AbstractResultSet
+class Phoursquare_CheckinList extends Phoursquare_AbstractResultSet
 {
+    /**
+     *
+     * @var Phoursquare_User_AbstractUser
+     */
+    protected $_user;
 
     /**
      *
-     * @return Phoursquare_User_Friend
+     * @param array $data
+     * @param Phoursquare_Service $service
+     * @param Phoursquare_User_AbstractUser $user 
+     */
+    public function  __construct(
+        array $data,
+        Phoursquare_Service $service,
+        Phoursquare_User_AbstractUser $user
+    ) {
+        parent::__construct($data, $service);
+        $this->_user = $user;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Checkin
      */
     protected function _parse($key)
     {
-        return $this->getService()
-                    ->parseUser($key);
+        return new Phoursquare_Checkin(
+            $this->_data[$key],
+            $this->getUser()
+        );
     }
+
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    protected function getUser()
+    {
+        return $this->_user;
+    }
+
 
 }

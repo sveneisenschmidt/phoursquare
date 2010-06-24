@@ -62,5 +62,15 @@ class Phoursquare_User_AuthenticatedUser extends Phoursquare_User_AbstractAdvanc
         parent::__construct($data, $service);
     }
 
-
+    /**
+     *
+     * @param integer $limit
+     * @param integer $sinceId
+     * @return Phoursquare_CheckinList
+     */
+    public function getCheckins($limit = 25, $sinceId = null)
+    {
+        return $this->getService()
+                    ->getAuthenticatedUserCheckins($limit);
+    }
 }

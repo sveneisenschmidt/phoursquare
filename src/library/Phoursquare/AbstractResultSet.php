@@ -80,6 +80,22 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
 
     /**
      *
+     * @return mixed
+     */
+    public function current()
+    {
+        return $this->_parse($this->_key);
+    }
+
+    /**
+     *
+     * @param integer $key
+     * @return mixed
+     */
+    abstract protected function _parse($key);
+
+    /**
+     *
      * @return integer
      */
     public function count()
@@ -130,6 +146,27 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
     public function getService()
     {
         return $this->_service;
+    }
+
+    /**
+     *
+     * @return mixed
+     */
+    public function getFirstInList()
+    {
+        return $this->_parse(0);
+    }
+
+    /**
+     *
+     * @return mixed
+     */
+    public function getLastInList()
+    {
+        $key = (($this->count() -1) < 0)
+                   ? 0 : $this->count() -1;
+        
+        return $this->_parse($key);
     }
 
 }

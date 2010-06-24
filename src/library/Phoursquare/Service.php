@@ -142,7 +142,27 @@ abstract class Phoursquare_Service
 
     /**
      *
-     * @param string $fromUserId
+     * @param integer $venueId
+     * @return Phoursquare_Venue
+     */
+    public function getVenue($venueId)
+    {
+        $data = $this->getRequest()
+                     ->fetchVenue($venueId);
+
+        if(!property_exists($data, 'venue')) {
+            throw new Exception('No valid venue response returned.');
+        }
+
+        require_once 'Phoursquare/Venue.php';
+        return new Phoursquare_Venue(
+            $data->venue, $this
+        );
+    }
+
+    /**
+     *
+     * @param integer $fromUserId
      * @return Phoursquare_ResultSet
      */
     public function getFriends($fromUserId = null)
@@ -157,6 +177,29 @@ abstract class Phoursquare_Service
         require_once 'Phoursquare/UsersList.php';
         return new Phoursquare_UsersList(
             $data->friends, $this
+        );
+    }
+
+    /**
+     *
+     * @param integer $limit
+     * @param integer $sinceId
+     * @return Phoursquare_CheckinList
+     */
+    public function getAuthenticatedUserCheckins($limit = 25, $sinceId = null)
+    {
+        $data = $this->getRequest()
+                     ->fetchHistory($limit, $sinceId);
+
+        if(!property_exists($data, 'checkins')) {
+            throw new Exception('No valid checkin response returned.');
+        }
+
+        require_once 'Phoursquare/CheckinList.php';
+        return new Phoursquare_CheckinList(
+            $data->checkins, 
+            $this,
+            $this->getAuthenticatedUser()
         );
     }
 

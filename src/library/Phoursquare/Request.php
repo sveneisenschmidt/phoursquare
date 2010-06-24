@@ -143,6 +143,45 @@ class Phoursquare_Request
 
      /**
       *
+      * @param integer $venueId
+      * @return stdClass
+      */
+     public function fetchVenue($venueId)
+     {
+        $client = $this->getClient();
+        $client->setUri(self::API_URI . '/v1/venue.json');
+        $client->setParameterGet('vid', (string) $venueId);
+
+        return $this->_fetch($client);
+     }
+
+     /**
+      *
+      * @param integer $limit
+      * @param integer $sinceId
+      * @return stdClass
+      */
+     public function fetchHistory($limit = 25, $sinceId = null)
+     {
+        $client = $this->getClient();
+        $client->setUri(self::API_URI . '/v1/history.json');
+
+        if(!is_null($limit)) {
+            if((int)$limit < 1 || (int)$limit > 250) {
+                throw new Exception('Limit can only between 1 and 250');
+            }
+            $client->setParameterGet('l', (string) $limit);
+        }
+        
+        if(!is_null($sinceId)) {
+            $client->setParameterGet('sinceid', (string) $sinceId);
+        }
+
+        return $this->_fetch($client);
+     }
+
+     /**
+      *
       * @param Zend_Http_Client $client
       * @return stdClass
       */
