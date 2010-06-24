@@ -7,13 +7,16 @@
 * Get Check-in from User
 * Get Venue (also from User via Check-in)
 * Get Check-in Stats
+* Get Check-in Tips
+* Get Major from Venue
 
 **ToDo:**
 
-* Get Major Status
+* List Categories
 * Able to Check-in somewhere
 * Search for Venues
-* ... somemore I forgot ;)
+* Caching, Caching, Caching
+* ... some more I forgot ;)
 
 ## Basic Usage
 
@@ -120,6 +123,21 @@
     // For an overview of the avialable Methods, scroll down ;)
 
 
+**Venue Tips:**
+
+    $tips = $service->getAuthenticatedUser()
+                    ->getLastCheckin()
+                    ->getVenue()
+                    ->getTips();
+
+
+    foreach($tips as $tip) {
+
+        $creator = $tip->getCreator();
+    }
+
+    // For an overview of the avialable Methods, scroll down ;)
+
 
 **Avaliable Methods on User Objects:**
 
@@ -177,7 +195,7 @@
 * hasFacebook
 
 
-**Avaliable Methods on Check-ins:**
+**Avaliable Methods for Check-ins:**
 
 * getId
 * getVenue
@@ -187,7 +205,7 @@
 * getVenue
 
 
-**Avaliable Methods on Venues:**
+**Avaliable Methods for Venues:**
 
 * getId
 * getName
@@ -198,12 +216,23 @@
 * getGeoLantide
 * getGeoLongitude
 * getStatistics
+* getTips
 
 
-**Avaliable Methods on Venue Statistics:**
+**Avaliable Methods for Venue Statistics:**
 
 * getCheckinCount
 * hereCheckedIn
+* beenHere
 * hasMayor
 * getMayor
 * getRelatedVenue
+
+
+**Avaliable Methods for Venue Tips:**
+
+* getCreator
+* getRelatedVenue
+* getAllTipsFromSameVenue
+* getText
+* getCreated

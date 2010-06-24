@@ -118,6 +118,12 @@ class Phoursquare_Venue
 
     /**
      *
+     * @var stdClass|Phoursquare_Venue_TipsList
+     */
+    protected $_tips;
+
+    /**
+     *
      * @param stdClass $data
      * @param Phoursquare_Service $service
      */
@@ -163,6 +169,10 @@ class Phoursquare_Venue
 
         if(property_exists($data, 'stats')) {
             $this->_stats = $data->stats;
+        }
+
+        if(property_exists($data, 'tips')) {
+            $this->_tips = $data->tips;
         }
     }
 
@@ -261,9 +271,9 @@ class Phoursquare_Venue
      *
      * @return boolean
      */
-    public function hasStats()
+    public function hasTips()
     {
-        if(!is_object($this->_stats)) {
+        if(!is_array($this->_tips)) {
             return false;
         }
 
@@ -272,22 +282,32 @@ class Phoursquare_Venue
 
     /**
      *
-     * @return Phoursquare_Venue_Stats
+     * @return Phoursquare_Venue_TipsList
      */
-    public function getStatistics()
+    public function getTips()
     {
-        if(!$this->hasStats()) {
+        if(!$this->hasTips()) {
             return null;
         }
 
-        if(!($this->_stats instanceof Phoursquare_Venue_Stats)) {
-            require_once 'Phoursquare/Venue/Stats.php';
-            $this->_stats = new  Phoursquare_Venue_Stats(
-                $this->_stats, $this, $this->getService()
+        if(!($this->_tips instanceof Phoursquare_Venue_TipsList)) {
+            require_once 'Phoursquare/Venue/TipsList.php';
+            $this->_tips = new  Phoursquare_Venue_TipsList(
+                $this->_tips, $this, $this->getService()
             );
         }
 
-        return $this->_stats;
+        return $this->_tips;
+    }
+
+    /**
+     *
+     * @return Phoursquare_CheckinList
+     */
+    public function getCheckins($limit = 25)
+    {
+        throw new Exception('Not yet implemented. ' .
+                            'Foursquare API seems to missing thi spart');
     }
 
 

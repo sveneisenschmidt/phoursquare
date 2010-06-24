@@ -36,14 +36,14 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phoursquare_AbstractResultSet
- * @uses Phoursquare_Checkin
+ * @uses Phoursquare_Venue_Tip
  */
 
 require_once 'Phoursquare/AbstractResultSet.php';
-require_once 'Phoursquare/Checkin.php';
+require_once 'Phoursquare/Venue/Tip.php';
 
 /**
- * Phoursquare_CheckinList
+ * Phoursquare_TipsList
  *
  * @category ResultSet
  * @package Phoursquare
@@ -52,13 +52,13 @@ require_once 'Phoursquare/Checkin.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_CheckinList extends Phoursquare_AbstractResultSet
+class Phoursquare_Venue_TipsList extends Phoursquare_AbstractResultSet
 {
     /**
      *
-     * @var Phoursquare_User_AbstractUser
+     * @var Phoursquare_Venue
      */
-    protected $_user;
+    protected $_venue;
 
     /**
      *
@@ -68,37 +68,38 @@ class Phoursquare_CheckinList extends Phoursquare_AbstractResultSet
      */
     public function  __construct(
         array $data,
-        Phoursquare_Service $service,
-        Phoursquare_User_AbstractUser $user
+        Phoursquare_Venue $venue,
+        Phoursquare_Service $service
     ) {
         parent::__construct($data, $service);
-        $this->_user = $user;
+        $this->_venue = $venue;
     }
 
     /**
      *
-     * @return Phoursquare_Checkin
+     * @return Phoursquare_Venue_Tip
      */
     protected function _parse($key)
     {
-        return new Phoursquare_Checkin(
+        return new Phoursquare_Venue_Tip(
             $this->_data[$key],
-            $this->getUser()
+            $this->_venue,
+            $this->getService()
         );
     }
 
     /**
      *
-     * @return Phoursquare_User_AbstractUser
+     * @return Phoursquare_Venue
      */
-    protected function getUser()
+    protected function getVenue()
     {
-        return $this->_user;
+        return $this->_venue;
     }
 
     /**
      *
-     * @return Phoursquare_Checkin
+     * @return Phoursquare_Venue_Tip
      */
     public function  current()
     {
@@ -107,7 +108,7 @@ class Phoursquare_CheckinList extends Phoursquare_AbstractResultSet
 
     /**
      *
-     * @return Phoursquare_Checkin
+     * @return Phoursquare_Venue_Tip
      */
     public function getFirstInList()
     {
@@ -116,7 +117,7 @@ class Phoursquare_CheckinList extends Phoursquare_AbstractResultSet
 
     /**
      *
-     * @return Phoursquare_Checkin
+     * @return Phoursquare_Venue_Tip
      */
     public function getLastInList()
     {
