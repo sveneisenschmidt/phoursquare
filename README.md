@@ -96,7 +96,7 @@
         $msg   = $checkin->getDisplayMessage();
         $venue = $checkin->getVenue();
 
-        $adress => array(
+        $address => array(
             'address    => $venue->getAddress(),
             'city'      => $venue->getCity(),
             'zip-code'  => $venue->getZipCode()
@@ -104,7 +104,9 @@
     }
 
     // OR
-
+    // Note: This venue will not be attached to any checkin
+    //       If you load a venue via a Checkin the venue will
+    //       stay in relation to a Checkin
     $venue = $service->getVenue($venueId = 666);
 
 
