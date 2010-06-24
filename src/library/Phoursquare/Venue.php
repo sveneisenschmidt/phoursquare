@@ -272,7 +272,7 @@ class Phoursquare_Venue
 
     /**
      *
-     * @return string
+     * @return Phoursquare_Venue_Stats
      */
     public function getStatistics()
     {

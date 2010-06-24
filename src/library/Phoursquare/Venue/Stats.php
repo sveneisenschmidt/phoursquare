@@ -49,9 +49,42 @@
  */
 class Phoursquare_Venue_Stats
 {
+
+    /**
+     *
+     * @var Phoursquare_Venue
+     */
+    protected $_venue;
+
+    /**
+     *
+     * @var Phoursquare_Service
+     */
+    protected $_service;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $_checkins = 0;
+
+    /**
+     *
+     * @var boolean
+     */
+    protected $_herenow = false;
+
+    /**
+     *
+     * @var integer|Phoursquare_User_AbstractUser
+     */
+    protected $_mayor;
+    
     /**
      *
      * @param stdClass $data
+     * @param Phoursquare_Venue $venue
+     * @param Phoursquare_Service $service
      * @param
      */
     public function __construct(
@@ -59,9 +92,92 @@ class Phoursquare_Venue_Stats
         Phoursquare_Venue $venue,
         Phoursquare_Service $service)
     {
-        
+        $this->_venue   = $venue;
+        $this->_service = $service;
+
+        if(property_exists($data, 'checkins')) {
+            $this->_checkins = $data->checkins;
+        }
+
+        if(property_exists($data, 'herenow')) {
+            $this->_herenow = (bool) $data->herenow;
+        }
+
+        if(property_exists($data, 'mayor') &&
+           property_exists($data->mayor, 'user') &&
+           property_exists($data->mayor->user, 'id')
+        ) {
+            $this->_mayor = $data->mayor->user->id;
+        }
     }
 
+    /**
+     *
+     * @return integer
+     */
+    public function getCheckInCount()
+    {
+        return (int) $this->_checkins;
+    }
 
+    /**
+     *
+     * @return boolean
+     */
+    public function hereCheckedIn()
+    {
+        return (bool) $this->_herenow;
+    }
 
+    /**
+     *
+     * @return Phoursquare_Venue
+     */
+    public function getRelatedVenue()
+    {
+        return $this->_venue;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Service
+     */
+    public function getService()
+    {
+        return $this->_service;
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function getMayor()
+    {
+        if(!$this->hasMayor()) {
+            return null;
+        }
+
+        if(!is_object($this->_mayor) && 
+          (!$this->_mayor instanceof Phoursquare_User_AbstractUser)
+        ) {
+            $this->_mayor = $this->getService()->getUser(
+                $this->_mayor
+            );
+        }
+
+        return $this->_mayor;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasMayor()
+    {
+        if(is_null($this->_mayor)) {
+            return false;
+        }
+
+        return true;
+    }
 }

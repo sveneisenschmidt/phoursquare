@@ -86,7 +86,7 @@
     }
 
 
-**Check-in & venue retrieval:**
+**Check-in & Venue retrieval:**
 
     $myself   = $service->getAuthenticatedUser();
     $checkins = $myself->getCheckins($limit = 25, $sinceId = null);
@@ -110,6 +110,16 @@
     $venue = $service->getVenue($venueId = 666);
 
 
+**Venue Statistics:**
+
+    $stats = $service->getAuthenticatedUser()
+                     ->getLastCheckin()
+                     ->getVenue()
+                     ->getSatistics();
+
+    // For an overview of the avialable Methods, scroll down ;)
+
+
 
 **Avaliable Methods on User Objects:**
 
@@ -127,8 +137,7 @@
 * getEmail
 * getPhone
 * getCheckins
-
-* check-ins, etc
+* getLastCheckin
 
 
 // On Friend from List
@@ -188,3 +197,13 @@
 * getState
 * getGeoLantide
 * getGeoLongitude
+* getStatistics
+
+
+**Avaliable Methods on Venue Statistics:**
+
+* getCheckinCount
+* hereCheckedIn
+* hasMayor
+* getMayor
+* getRelatedVenue

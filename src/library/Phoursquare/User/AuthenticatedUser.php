@@ -73,4 +73,15 @@ class Phoursquare_User_AuthenticatedUser extends Phoursquare_User_AbstractAdvanc
         return $this->getService()
                     ->getAuthenticatedUserCheckins($limit);
     }
+
+    /**
+     *
+     * @return Phoursquare_CheckinList
+     */
+    public function getLastCheckin()
+    {
+        return $this->getService()
+                    ->getAuthenticatedUserCheckins(1)
+                    ->getFirstInList();
+    }
 }
