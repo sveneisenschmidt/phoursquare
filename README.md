@@ -56,3 +56,82 @@
 
     $id      = 666; // some user id
     $friends = $service->getFriends($id);
+
+
+    // Iterate over Friends
+    // You have to know that the Friend Objects returned are only
+    // Stubs of real Users, so you have to call the method getFullUser()
+    $myself  = $service->getAuthenticatedUser();
+    $friends = $myself->getFriends()
+    $stub    = $friends->current();
+    $user    = $stub->getFullUser();
+
+    // OR short
+
+    $user = $this->getAuthenticatedUser()
+                 ->getFriends()
+                 ->current()
+                 ->getFullUser();
+
+    // Foreach:
+
+    $friends = $this->getAuthenticatedUser()->getFriends(); // OR
+    $friends = $this->getUser(666)->getFriends();
+
+    foreach($friends as $friend) {
+
+        $user = $this->getFullUser();
+        
+    }
+
+
+**Avaliable Methods on User Objects:**
+
+// On the authenticated User 
+
+* getId
+* getFirstname
+* getLastname
+* getPhoto
+* getGender
+* getTwitter
+* getFacebook
+* getEmail
+* getPhone
+
+(coming)
+
+* check-ins, etc
+
+
+// On Friend from List
+
+* getId
+* getFirstname
+* getLastname
+* getFullUser
+
+
+// On User with 'friendship'-relation
+
+* getId
+* getFirstname
+* getLastname
+* getPhoto
+* getGender
+* getTwitter
+* getFacebook
+* getEmail
+* getPhone
+* getFullUser
+
+
+// On 'non'-unrelated User
+
+* getId
+* getFirstname
+* getLastname
+* getPhoto
+* getGender
+* getTwitter
+* getFacebook

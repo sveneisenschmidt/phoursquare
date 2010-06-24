@@ -51,4 +51,18 @@ require_once 'Phoursquare/User/AbstractAdvancedUser.php';
  * @link www.unsicherheitsagent.de
  */
 class Phoursquare_User_Friend extends Phoursquare_User_AbstractAdvancedUser
-{}
+{
+
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function getFullUser()
+    {
+        return $this->getService()
+                    ->getUser($this->getId());
+    }
+
+
+
+}

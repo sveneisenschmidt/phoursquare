@@ -61,10 +61,8 @@ class Phoursquare_UsersList extends Phoursquare_AbstractResultSet
      */
     public function current()
     {
-        return new Phoursquare_User_Friend(
-            $this->_data[$this->_key],
-            $this->getService()
-        );
+        return $this->getService()
+                    ->parseUser($this->_data[$this->_key]);
     }
 
 

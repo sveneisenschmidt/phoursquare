@@ -170,7 +170,7 @@ abstract class Phoursquare_Service
         $data = $this->getRequest()
                      ->fetchUser((string)$uid);
 
-        return $this->_parseUser($data);
+        return $this->parseUser($data);
     }
 
     /**
@@ -178,7 +178,7 @@ abstract class Phoursquare_Service
      * @param stdClass $data
      * @return Phoursquare_User_AbstractUser
      */
-    protected function _parseUser(stdClass $data)
+    public function parseUser(stdClass $data)
     {
         if(!property_exists($data, 'user')) {
             throw new Exception('No valid user response returned.');
