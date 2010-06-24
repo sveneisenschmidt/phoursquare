@@ -35,6 +35,7 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
+ * @uses Phoursquare_Venue_Stats
  */
 
 /**
@@ -111,6 +112,12 @@ class Phoursquare_Venue
 
     /**
      *
+     * @var stdClass|Phoursquare_Venue_Stats
+     */
+    protected $_stats;
+
+    /**
+     *
      * @param stdClass $data
      * @param Phoursquare_Service $service
      */
@@ -154,7 +161,9 @@ class Phoursquare_Venue
             $this->_geolong = $data->geolong;
         }
 
-        print_p($data);
+        if(property_exists($data, 'stats')) {
+            $this->_stats = $data->stats;
+        }
     }
 
     /**
@@ -246,6 +255,39 @@ class Phoursquare_Venue
     public function getGeoLongitude()
     {
         return $this->_geolong;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasStats()
+    {
+        if(!is_object($this->_stats)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getStatistics()
+    {
+        if(!$this->hasStats()) {
+            return null;
+        }
+
+        if(!($this->_stats instanceof Phoursquare_Venue_Stats)) {
+            require_once 'Phoursquare/Venue/Stats.php';
+            $this->_stats = new  Phoursquare_Venue_Stats(
+                $this->_stats, $this, $this->getService()
+            );
+        }
+
+        return $this->_stats;
     }
 
 
