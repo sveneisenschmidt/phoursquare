@@ -67,6 +67,47 @@ class Phoursquare_Venue
      */
     protected $_id;
 
+    /**
+     *
+     * @var string
+     */
+    protected $_name;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_address;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_city;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_state;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_zip;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_geolat;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_geolong;
 
     /**
      *
@@ -84,6 +125,36 @@ class Phoursquare_Venue
         if(property_exists($data, 'id')) {
             $this->_id = (int) $data->id;
         }
+
+        if(property_exists($data, 'name')) {
+            $this->_name = $data->name;
+        }
+
+        if(property_exists($data, 'address')) {
+            $this->_address = $data->address;
+        }
+
+        if(property_exists($data, 'city')) {
+            $this->_city = $data->city;
+        }
+
+        if(property_exists($data, 'state')) {
+            $this->_state = $data->state;
+        }
+
+        if(property_exists($data, 'zip')) {
+            $this->_zip = $data->zip;
+        }
+
+        if(property_exists($data, 'geolat')) {
+            $this->_geolat = $data->geolat;
+        }
+
+        if(property_exists($data, 'geolong')) {
+            $this->_geolong = $data->geolong;
+        }
+
+        print_p($data);
     }
 
     /**
@@ -113,5 +184,69 @@ class Phoursquare_Venue
     {
         return $this->_id;
     }
+
+    /**
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->_name;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->_address;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getCity()
+    {
+        return $this->_city;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getZipCode()
+    {
+        return $this->_zip;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getState()
+    {
+        return $this->_state;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getGeoLantide()
+    {
+        return $this->_geolat;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getGeoLongitude()
+    {
+        return $this->_geolong;
+    }
+
 
 }

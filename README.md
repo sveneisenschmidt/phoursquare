@@ -4,10 +4,12 @@
 
 * User retrieval
 * Friend(s) retrieval
+* Get Check-in from User
+* Get Venue (also from User via Check-in)
+* Get Check-in Stats
 
 **ToDo:**
 
-* Get last Check-ins
 * Get Major Status
 * Able to Check-in somewhere
 * Search for Venues
@@ -40,7 +42,7 @@
     $myself = $service->getAuthenticatedUser();
 
     // Another User (by id)
-    $user = $service->getUser(666);
+    $user = $service->getUser($uid = 666);
 
 
 **Friend retrieval:**
@@ -53,9 +55,7 @@
     $friends = $service->getFriends();
 
     // OR
-
-    $id      = 666; // some user id
-    $friends = $service->getFriends($id);
+    $friends = $service->getFriends($friendsId = 666);
 
 
     // Iterate over Friends
@@ -76,13 +76,37 @@
     // Foreach:
 
     $friends = $this->getAuthenticatedUser()->getFriends(); // OR
-    $friends = $this->getUser(666)->getFriends();
+    $friends = $this->getUser($uid = 666)->getFriends();
 
     foreach($friends as $friend) {
 
+        // see User Methods
         $user = $this->getFullUser();
         
     }
+
+
+**Check-in & venue retrieval:**
+
+    $myself   = $service->getAuthenticatedUser();
+    $checkins = $myself->getCheckins($limit = 25, $sinceId = null);
+
+    foreach($checkins as $checkin) {
+
+        $msg   = $checkin->getDisplayMessage();
+        $venue = $checkin->getVenue();
+
+        $adress => array(
+            'address    => $venue->getAddress(),
+            'city'      => $venue->getCity(),
+            'zip-code'  => $venue->getZipCode()
+        );
+    }
+
+    // OR
+
+    $venue = $service->getVenue($venueId = 666);
+
 
 
 **Avaliable Methods on User Objects:**
@@ -96,10 +120,11 @@
 * getGender
 * getTwitter
 * getFacebook
+* hasTwitter
+* hasFacebook
 * getEmail
 * getPhone
-
-(coming)
+* getCheckins
 
 * check-ins, etc
 
@@ -121,6 +146,8 @@
 * getGender
 * getTwitter
 * getFacebook
+* hasTwitter
+* hasFacebook
 * getEmail
 * getPhone
 * getFullUser
@@ -135,3 +162,27 @@
 * getGender
 * getTwitter
 * getFacebook
+* hasTwitter
+* hasFacebook
+
+
+**Avaliable Methods on Check-ins:**
+
+* getId
+* getVenue
+* getCreated
+* getTimezone
+* hasVenue
+* getVenue
+
+
+**Avaliable Methods on Venues:**
+
+* getId
+* getName
+* getAddress
+* getCity
+* getZipCode
+* getState
+* getGeoLantide
+* getGeoLongitude
