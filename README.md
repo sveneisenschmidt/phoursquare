@@ -206,6 +206,7 @@ Phoursquare_Cache_AbstractCache or use Zend_Cache
 
     // For an overview of the avialable Methods, scroll down ;)
 
+
 **Avaliable Methods on User Objects:**
 
 // On the authenticated User 
@@ -305,10 +306,14 @@ Phoursquare_Cache_AbstractCache or use Zend_Cache
 * getCreated
 
 
-**Avaliable Methods for Venue Categories:**
+**Avaliable Methods for (Venue) Categories:**
 
 * getId
 * getRelatedVenue
 * getNodename
 * getFullNodepath
 * getIconUrl
+* hasParentCategory
+* getParentCategory
+* find
+* filter
