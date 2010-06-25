@@ -61,8 +61,37 @@ class Phoursquare_UsersList extends Phoursquare_AbstractResultSet
      */
     protected function _parse($key)
     {
-        return $this->getService()
-                    ->parseUser($key);
+        return new Phoursquare_User_Friend(
+            $this->_data[$key],
+            $this->getService()
+        );
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_Friend
+     */
+    public function  current()
+    {
+        return parent::current();
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_Friend
+     */
+    public function getFirstInList()
+    {
+        return parent::getFirstInList();
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_Friend
+     */
+    public function getLastInList()
+    {
+        return parent::getLastInList();
     }
 
 }

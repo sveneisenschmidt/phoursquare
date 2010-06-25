@@ -1,5 +1,9 @@
 # phoursquare
 
+**Status:**
+
+Currently in Read-only-mode.
+
 **Done:**
 
 * User retrieval
@@ -9,13 +13,14 @@
 * Get Check-in Stats
 * Get Check-in Tips
 * Get Major from Venue
+* Caching
+* Get Venue Categories
 
 **ToDo:**
 
 * List Categories
 * Able to Check-in somewhere
 * Search for Venues
-* Caching, Caching, Caching
 * ... some more I forgot ;)
 
 ## Basic Usage
@@ -37,6 +42,26 @@
     // Before the first connection the username & password
     // is exchanged for token & secret token
     $service = new Phoursquare($auth);
+
+
+**Caching:**
+
+You can use your own Cache Class by only extending it from 
+Phoursquare_Cache_AbstractCache or use Zend_Cache
+
+    require_once 'Zend/Cache.php';
+    $cache = Zend_Cache::factory(
+        'Core', 'File',
+        array(
+            'lifetime' => 360,
+            'automatic_serialization' => true
+        ),
+        array(
+            'cache_dir' => sys_get_temp_dir()
+        )
+    );
+
+    $service->setCache($cache);
 
 
 **User retrieval:**
@@ -139,6 +164,21 @@
     // For an overview of the avialable Methods, scroll down ;)
 
 
+**Venue Categories:**
+
+    $cats = $service->getAuthenticatedUser()
+                    ->getLastCheckin()
+                    ->getVenue()
+                    ->getCategories();
+
+
+    foreach($cats as $category) {
+
+        $name = $category->getNodename();
+    }
+
+    // For an overview of the avialable Methods, scroll down ;)
+
 **Avaliable Methods on User Objects:**
 
 // On the authenticated User 
@@ -236,3 +276,12 @@
 * getAllTipsFromSameVenue
 * getText
 * getCreated
+
+
+**Avaliable Methods for Venue Categories:**
+
+* getId
+* getRelatedVenue
+* getNodename
+* getFullNodepath
+* getIconUrl

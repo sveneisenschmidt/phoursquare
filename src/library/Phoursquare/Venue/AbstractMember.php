@@ -35,13 +35,10 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_Venue_AbstractMember
  */
 
-require_once 'Phoursquare/Venue/AbstractMember.php';
-
 /**
- * Phoursquare_Venue_Tip
+ * Phoursquare_Venue_Category
  *
  * @category Venue
  * @package Phoursquare
@@ -50,26 +47,26 @@ require_once 'Phoursquare/Venue/AbstractMember.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
+class Phoursquare_Venue_AbstractMember
 {
     /**
      *
-     * @var null|integer|Phoursquare_User_AbstractUser
+     * @var Phoursquare_Service
      */
-    protected $_user;
+    protected $_service;
 
     /**
      *
-     * @var string
+     * @var Phoursquare_Venue
      */
-    protected $_text;
+    protected $_venue;
 
     /**
      *
-     * @var string
+     * @var integer
      */
-    protected $_created;
-    
+     protected $_id;
+     
     /**
      *
      * @param stdClass $data
@@ -82,69 +79,44 @@ class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
         Phoursquare_Venue $venue,
         Phoursquare_Service $service)
     {
-        parent::__construct($data, $venue, $service);
+        $this->_venue   = $venue;
+        $this->_service = $service;
 
-        if(property_exists($data, 'user') &&
-           property_exists($data->user, 'id')
-        ) {
-            $this->_user = (int)$data->user->id;
+        if(!property_exists($data, 'id')) {
+            throw new Exception('Missing \'id\' poperty.');
         }
 
-        if(property_exists($data, 'created')) {
-            $this->_created= $data->created;
-        }
-
-        if(property_exists($data, 'text')) {
-            $this->_text = $data->text;
+        if(property_exists($data, 'id')) {
+            $this->_id = (int) $data->id;
         }
     }
 
     /**
      *
-     * @return Phoursquare_User_AbstractUser
+     * @return Phoursquare_Venue
      */
-    public function getCreator()
+    public function getRelatedVenue()
     {
-        if(is_null($this->_user)) {
-            return null;
-        }
-
-        if(!is_object($this->_user) &&
-          (!$this->_user instanceof Phoursquare_User_AbstractUser)
-        ) {
-            $this->_user = $this->getService()->getUser(
-                $this->_user
-            );
-        }
-
-        return $this->_user;
+        return $this->_venue;
     }
 
     /**
      *
-     * @return string
+     * @return Phoursquare_Service
      */
-    public function getText()
+    public function getService()
     {
-        return $this->_text;
+        return $this->_service;
     }
 
     /**
      *
-     * @return string
+     * @return integer
      */
-    public function getCreated()
+    public function getid()
     {
-        return $this->_created;
+        return $this->_id;
     }
 
-    /**
-     *
-     * @return Phoursquare_Venue_TipsList
-     */
-    public function getAllTipsFromSameVenue()
-    {
-        return $this->getRelatedVenue()
-                    ->getTips();
-    }
+
 }

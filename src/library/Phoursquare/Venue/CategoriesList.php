@@ -36,14 +36,14 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phoursquare_Venue_AbstractMemberList
- * @uses Phoursquare_Venue_Tip
+ * @uses Phoursquare_Venue_Category
  */
 
 require_once 'Phoursquare/Venue/AbstractMemberList.php';
-require_once 'Phoursquare/Venue/Tip.php';
+require_once 'Phoursquare/Venue/Category.php';
 
 /**
- * Phoursquare_Venue_TipsList
+ * Phoursquare_Venue_CategoriesList
  *
  * @category ResultSet
  * @package Phoursquare
@@ -52,30 +52,16 @@ require_once 'Phoursquare/Venue/Tip.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_TipsList extends Phoursquare_Venue_AbstractMemberList
+class Phoursquare_Venue_CategoriesList 
+    extends Phoursquare_Venue_AbstractMemberList
 {
-    /**
-     *
-     * @param array $data
-     * @param Phoursquare_Venue $venue
-     * @param Phoursquare_Service $service
-     */
-    public function  __construct(
-        array $data,
-        Phoursquare_Venue $venue,
-        Phoursquare_Service $service
-    ) {
-        parent::__construct($data, $service);
-        $this->_venue = $venue;
-    }
-
     /**
      *
      * @return Phoursquare_Venue_Tip
      */
     protected function _parse($key)
     {
-        return new Phoursquare_Venue_Tip(
+        return new Phoursquare_Venue_Category(
             $this->_data[$key],
             $this->_venue,
             $this->getService()
@@ -108,4 +94,5 @@ class Phoursquare_Venue_TipsList extends Phoursquare_Venue_AbstractMemberList
     {
         return parent::getLastInList();
     }
+
 }

@@ -37,6 +37,8 @@
  *
  * @uses Zend_Http_Client
  * @uses Phoursquare_Response
+ * @uses Phoursquare_Cache_ZendCacheWrapper
+ * @uses Phoursquare_Cache_AbstractCache
  */
 
 require_once 'Zend/Http/Client.php';
@@ -100,6 +102,51 @@ class Phoursquare_Request
 
     /**
      *
+     * @param Zend_Cache_Core|Phoursquare_Cache_AbstractCache $cache
+     * @return Phoursquare_Request
+     */
+     public function setCache($cache)
+     {
+        if(!is_object($cache)) {
+            throw new Exception('Param $cache is no class instance');
+        }
+
+        if($cache instanceof Zend_Cache_Core) {
+
+            require_once 'Phoursquare/Cache/ZendCacheWrapper.php';
+            $cache = new Phoursquare_Cache_ZendCacheWrapper($cache);
+        }
+        
+        if($cache instanceof Phoursquare_Cache_AbstractCache) {
+            $this->_cache = $cache;
+            return $this;
+        }
+
+        throw new Exception('Param $cache is no instance of Zend_Cache_Core ' .
+                            'or Phoursquare_Cache_AbstractCache');
+     }
+
+    /**
+     *
+     * @return Phoursquare_Cache_AbstractCache
+     */
+     public function getCache()
+     {
+         return $this->_cache;
+     }
+
+    /**
+     *
+     * @return boolean
+     */
+     public function hasCache()
+     {
+         return is_object($this->_cache) &&
+                    ($this->_cache instanceof Phoursquare_Cache_AbstractCache);
+     }
+
+    /**
+     *
      * @return boolean
      */
      public function isReady()
@@ -114,7 +161,7 @@ class Phoursquare_Request
       * @param string $uid
       * @return stdClass
       */
-     public function fetchUser($uid = null)
+     public function fetchUser($uid = null, $hash = null)
      {
         $client = $this->getClient();
         $client->setUri(self::API_URI . '/v1/user.json');
@@ -122,7 +169,7 @@ class Phoursquare_Request
             $client->setParameterGet('uid', (string) $uid);
         }
 
-        return $this->_fetch($client);
+        return $this->_fetch($client, array($uid, $hash));
      }
 
      /**
@@ -138,7 +185,7 @@ class Phoursquare_Request
             $client->setParameterGet('uid', (string) $fromUserId);
         }
 
-        return $this->_fetch($client);
+        return $this->_fetch($client, array($fromUserId));
      }
 
      /**
@@ -152,7 +199,7 @@ class Phoursquare_Request
         $client->setUri(self::API_URI . '/v1/venue.json');
         $client->setParameterGet('vid', (string) $venueId);
 
-        return $this->_fetch($client);
+        return $this->_fetch($client, array($venueId));
      }
 
      /**
@@ -177,7 +224,7 @@ class Phoursquare_Request
             $client->setParameterGet('sinceid', (string) $sinceId);
         }
 
-        return $this->_fetch($client);
+        return $this->_fetch($client, array($limit, $sinceId));
      }
 
      /**
@@ -185,8 +232,20 @@ class Phoursquare_Request
       * @param Zend_Http_Client $client
       * @return stdClass
       */
-     protected function _fetch(Zend_Http_Client $client)
+     protected function _fetch(Zend_Http_Client $client, array $ids = array())
      {
+        if($this->hasCache() && $cache = $this->getCache()) {
+            $ids[] = $client->getUri(true);
+            $hash  = sha1(implode('', $ids));
+
+            if($cache->contains($hash)) {
+                $client->resetParameters(true);
+                return Phoursquare_Response::decode(
+                    $cache->fetch($hash)
+                );
+            }
+        }
+
         $response = new Phoursquare_Response(
             $client->request()
         );
@@ -196,7 +255,12 @@ class Phoursquare_Request
         }
 
         $client->resetParameters(true);
-        return $response->decode();
+        if($this->hasCache()) {
+            $cache->save($hash, $response->getResponseBody());
+        }
+        return Phoursquare_Response::decode(
+            $response->getResponseBody()
+        );
      }
 
      /**

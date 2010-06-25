@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category Venue
+ * @category Cache
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,116 +35,96 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_Venue_AbstractMember
+ * @uses Phoursquare_Cache_AbstractCache
  */
 
-require_once 'Phoursquare/Venue/AbstractMember.php';
+require_once 'Phoursquare/Cache/AbstractCache.php';
 
 /**
- * Phoursquare_Venue_Tip
+ * Phoursquare_Cache_ZendCacheWrapper
  *
- * @category Venue
+ * @category Cache
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
+class Phoursquare_Cache_ZendCacheWrapper extends Phoursquare_Cache_AbstractCache
 {
     /**
-     *
-     * @var null|integer|Phoursquare_User_AbstractUser
+     * @var Zend_Cache_Core
      */
-    protected $_user;
+    protected $_zendCache;
 
     /**
      *
-     * @var string
+     * @param Zend_Cache_Core $zendCache
      */
-    protected $_text;
-
-    /**
-     *
-     * @var string
-     */
-    protected $_created;
-    
-    /**
-     *
-     * @param stdClass $data
-     * @param Phoursquare_Venue $venue
-     * @param Phoursquare_Service $service
-     * @param
-     */
-    public function __construct(
-        stdClass $data,
-        Phoursquare_Venue $venue,
-        Phoursquare_Service $service)
+    public function __construct(Zend_Cache_Core $zendCache)
     {
-        parent::__construct($data, $venue, $service);
-
-        if(property_exists($data, 'user') &&
-           property_exists($data->user, 'id')
-        ) {
-            $this->_user = (int)$data->user->id;
-        }
-
-        if(property_exists($data, 'created')) {
-            $this->_created= $data->created;
-        }
-
-        if(property_exists($data, 'text')) {
-            $this->_text = $data->text;
-        }
+        $this->setZendCache($zendCache);
     }
 
     /**
      *
-     * @return Phoursquare_User_AbstractUser
+     * @param Zend_Cache_Core $zendCache
+     * @return Phoursquare_Cache_ZendCacheWrapper
      */
-    public function getCreator()
+    public function setZendCache(Zend_Cache_Core $zendCache)
     {
-        if(is_null($this->_user)) {
-            return null;
-        }
-
-        if(!is_object($this->_user) &&
-          (!$this->_user instanceof Phoursquare_User_AbstractUser)
-        ) {
-            $this->_user = $this->getService()->getUser(
-                $this->_user
-            );
-        }
-
-        return $this->_user;
+        $this->_zendCache = $zendCache;
+        return $this;
     }
 
     /**
      *
+     * @return Zend_Cache_Core
+     */
+    public function getZendCache()
+    {
+        return $this->_zendCache;
+    }
+
+    /**
+     *
+     * @param string $id
      * @return string
      */
-    public function getText()
+    protected function _doFetch($id)
     {
-        return $this->_text;
+        return $this->_zendCache->load($id);
     }
 
     /**
      *
+     * @param string $id
+     * @return boolean
+     */
+    protected function _doContains($id)
+    {
+        return (bool)$this->_zendCache->test($id);
+    }
+
+    /**
+     *
+     * @param string $id
+     * @param string|array $data
+     * @param integer $lifeTime
      * @return string
      */
-    public function getCreated()
+    protected function _doSave($id, $data, $lifeTime = false, $tags = array())
     {
-        return $this->_created;
+        return $this->_zendCache->save($data, $id, $tags, $lifeTime);
     }
 
     /**
      *
-     * @return Phoursquare_Venue_TipsList
+     * @param string $id
+     * @return boolean
      */
-    public function getAllTipsFromSameVenue()
+    protected function _doDelete($id)
     {
-        return $this->getRelatedVenue()
-                    ->getTips();
+        return $this->_zendCache->remove($id);
     }
 }

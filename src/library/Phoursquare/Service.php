@@ -36,6 +36,7 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phourquare_Request
+ * @uses Phourquare_Cache_AbstractCache
  */
 
 require_once 'Phoursquare/Request.php';
@@ -57,6 +58,7 @@ abstract class Phoursquare_Service
      * @var Phoursquare_Request
      */
     private $_request;
+    
     /**
      *
      * @var Phoursquare_Auth_Http
@@ -75,29 +77,53 @@ abstract class Phoursquare_Service
     }
 
     /**
-     * 
-     * @param Phoursquare_Request $request
-     * @return Phoursquare_Service 
-     */
-    public function setRequest(Phoursquare_Request $request)
-    {
-        $this->_request = $request;
-        return $this;
-    }
-
-    /**
      *
      * @return Phoursquare_Request
      */
     public function getRequest()
     {
         if(is_null($this->_request)) {
-            $this->setRequest(
-                new Phoursquare_Request()
-            );
+            $this->_request = new Phoursquare_Request();
         }
 
         return $this->_request;
+    }
+
+    /**
+     *
+     * @param Zend_Cache_Core| $cache
+     * @return Phoursquare_Service
+     */
+    public function setCache($cache)
+    {
+        $this->getRequest()
+             ->setCache($cache);
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Cache_AbstractCache
+     */
+    public function getCache()
+    {
+        if(!$this->hasCache()) {
+            return null;
+        }
+
+        return $this->getRequest()
+                    ->getCache();
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasCache()
+    {
+        return $this->getRequest()
+                    ->hasCache();
     }
 
     /**
@@ -109,6 +135,7 @@ abstract class Phoursquare_Service
     {
         $this->getRequest()
              ->setAuth($auth);
+        
         return $this;
     }
 
@@ -128,7 +155,13 @@ abstract class Phoursquare_Service
      */
     public function  getAuthenticatedUser()
     {
-        return $this->_getUser();
+        $hash = null;
+        if($this->getAuth() instanceof Phoursquare_Auth_Http) {
+            $hash = $this->getAuth()
+                         ->getUsername();
+        }
+        
+        return $this->_getUser(null, sha1($hash));
     }
 
     /**
@@ -137,7 +170,7 @@ abstract class Phoursquare_Service
      */
     public function getUser($uid)
     {
-        return $this->_getUser($uid);
+        return $this->_getUser($uid, sha1($uid));
     }
 
     /**
@@ -208,10 +241,10 @@ abstract class Phoursquare_Service
      * @param integer $uid
      * @return Phoursquare_User_AbstractUser
      */
-    protected function _getUser($uid = null)
+    protected function _getUser($uid = null, $hash = null)
     {
         $data = $this->getRequest()
-                     ->fetchUser((string)$uid);
+                     ->fetchUser((string)$uid, $hash);
 
         return $this->parseUser($data);
     }

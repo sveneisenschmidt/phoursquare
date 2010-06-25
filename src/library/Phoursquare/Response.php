@@ -132,12 +132,22 @@ class Phoursquare_Response
 
     /**
      *
+     * @return string
+     */
+    public function getResponseBody()
+    {
+        return $this->getClientResponse()
+                    ->getBody();
+    }
+
+    /**
+     *
      * @return stdClass
      */
-    public function decode()
+    public static function decode($string)
     {
         return Zend_Json::decode(
-            $this->getClientResponse()->getBody(),
+            $string,
             Zend_Json::TYPE_OBJECT
         );
     }

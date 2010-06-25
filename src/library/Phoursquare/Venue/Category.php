@@ -41,7 +41,7 @@
 require_once 'Phoursquare/Venue/AbstractMember.php';
 
 /**
- * Phoursquare_Venue_Tip
+ * Phoursquare_Venue_Category
  *
  * @category Venue
  * @package Phoursquare
@@ -50,26 +50,27 @@ require_once 'Phoursquare/Venue/AbstractMember.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
+class Phoursquare_Venue_Category extends Phoursquare_Venue_AbstractMember
 {
-    /**
-     *
-     * @var null|integer|Phoursquare_User_AbstractUser
-     */
-    protected $_user;
 
     /**
      *
      * @var string
      */
-    protected $_text;
+     protected $_nodename;
 
     /**
      *
      * @var string
      */
-    protected $_created;
-    
+     protected $_fullpathname;
+
+    /**
+     *
+     * @var string
+     */
+     protected $_iconurl;
+     
     /**
      *
      * @param stdClass $data
@@ -84,67 +85,43 @@ class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
     {
         parent::__construct($data, $venue, $service);
 
-        if(property_exists($data, 'user') &&
-           property_exists($data->user, 'id')
-        ) {
-            $this->_user = (int)$data->user->id;
+        if(property_exists($data, 'nodename')) {
+            $this->_nodename = $data->nodename;
         }
 
-        if(property_exists($data, 'created')) {
-            $this->_created= $data->created;
+        if(property_exists($data, 'fullpathname')) {
+            $this->_fullpathname = $data->fullpathname;
         }
 
-        if(property_exists($data, 'text')) {
-            $this->_text = $data->text;
+        if(property_exists($data, 'iconurl')) {
+            $this->_iconurl = $data->iconurl;
         }
-    }
-
-    /**
-     *
-     * @return Phoursquare_User_AbstractUser
-     */
-    public function getCreator()
-    {
-        if(is_null($this->_user)) {
-            return null;
-        }
-
-        if(!is_object($this->_user) &&
-          (!$this->_user instanceof Phoursquare_User_AbstractUser)
-        ) {
-            $this->_user = $this->getService()->getUser(
-                $this->_user
-            );
-        }
-
-        return $this->_user;
     }
 
     /**
      *
      * @return string
      */
-    public function getText()
+    public function getNodename()
     {
-        return $this->_text;
+        return $this->_nodename;
     }
 
     /**
      *
      * @return string
      */
-    public function getCreated()
+    public function getFullNodepath()
     {
-        return $this->_created;
+        return $this->_fullpathname;
     }
 
     /**
      *
-     * @return Phoursquare_Venue_TipsList
+     * @return string
      */
-    public function getAllTipsFromSameVenue()
+    public function getIconUrl()
     {
-        return $this->getRelatedVenue()
-                    ->getTips();
+        return $this->_iconurl;
     }
 }

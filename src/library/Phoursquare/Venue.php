@@ -124,6 +124,12 @@ class Phoursquare_Venue
 
     /**
      *
+     * @var stdClass|Phoursquare_Venue_CategoriesList
+     */
+    protected $_categories;
+
+    /**
+     *
      * @param stdClass $data
      * @param Phoursquare_Service $service
      */
@@ -173,6 +179,10 @@ class Phoursquare_Venue
 
         if(property_exists($data, 'tips')) {
             $this->_tips = $data->tips;
+        }
+
+        if(property_exists($data, 'categories')) {
+            $this->_categories = $data->categories;
         }
     }
 
@@ -298,6 +308,39 @@ class Phoursquare_Venue
         }
 
         return $this->_tips;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasCatgories()
+    {
+        if(!is_array($this->_categories)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Venue_CategoriesList
+     */
+    public function getCategories()
+    {
+        if(!$this->hasCatgories()) {
+            return null;
+        }
+
+        if(!($this->_categories instanceof Phoursquare_Venue_CategoriesList)) {
+            require_once 'Phoursquare/Venue/CategoriesList.php';
+            $this->_categories = new  Phoursquare_Venue_CategoriesList(
+                $this->_categories, $this, $this->getService()
+            );
+        }
+
+        return $this->_categories;
     }
 
     /**
