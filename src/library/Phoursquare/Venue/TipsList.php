@@ -35,11 +35,11 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_Venue_AbstractMemberList
+ * @uses Phoursquare_AbstractResultSet
  * @uses Phoursquare_Venue_Tip
  */
 
-require_once 'Phoursquare/Venue/AbstractMemberList.php';
+require_once 'Phoursquare/AbstractResultSet.php';
 require_once 'Phoursquare/Venue/Tip.php';
 
 /**
@@ -52,8 +52,14 @@ require_once 'Phoursquare/Venue/Tip.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_TipsList extends Phoursquare_Venue_AbstractMemberList
+class Phoursquare_Venue_TipsList extends Phoursquare_AbstractResultSet
 {
+    /**
+     *
+     * @var Phoursquare_Venue
+     */
+    protected $_venue;
+
     /**
      *
      * @param array $data
@@ -107,5 +113,14 @@ class Phoursquare_Venue_TipsList extends Phoursquare_Venue_AbstractMemberList
     public function getLastInList()
     {
         return parent::getLastInList();
+    }
+
+    /**
+     *
+     * @return Phoursquare_Venue
+     */
+    public function getRelatedVenue()
+    {
+        return $this->venue;
     }
 }

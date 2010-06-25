@@ -122,14 +122,4 @@ class Phoursquare_CheckinList extends Phoursquare_AbstractResultSet
     {
         return parent::getLastInList();
     }
-
-    /**
-     *
-     * @return Phoursquare_Checkin
-     */
-    public function getLastInList()
-    {
-        return parent::getLastInList();
-    }
-
 }

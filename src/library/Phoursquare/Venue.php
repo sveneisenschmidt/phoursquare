@@ -182,7 +182,10 @@ class Phoursquare_Venue
         }
 
         if(property_exists($data, 'categories')) {
-            $this->_categories = $data->categories;
+            $this->_categories = array();
+            foreach($data->categories as $category) {
+                array_push($this->_categories, $category->id);
+            }
         }
     }
 
@@ -283,11 +286,7 @@ class Phoursquare_Venue
      */
     public function hasTips()
     {
-        if(!is_array($this->_tips)) {
-            return false;
-        }
-
-        return true;
+        return !is_null($this->_tips);
     }
 
     /**
@@ -316,11 +315,7 @@ class Phoursquare_Venue
      */
     public function hasCatgories()
     {
-        if(!is_array($this->_categories)) {
-            return false;
-        }
-
-        return true;
+        return !is_null($this->_categories);
     }
 
     /**
@@ -335,8 +330,10 @@ class Phoursquare_Venue
 
         if(!($this->_categories instanceof Phoursquare_Venue_CategoriesList)) {
             require_once 'Phoursquare/Venue/CategoriesList.php';
-            $this->_categories = new  Phoursquare_Venue_CategoriesList(
-                $this->_categories, $this, $this->getService()
+            $this->_categories = new Phoursquare_Venue_CategoriesList(
+                $this->_categories,
+                $this->getService(),
+                $this
             );
         }
 

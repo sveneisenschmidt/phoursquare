@@ -35,10 +35,7 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_Venue_AbstractMember
  */
-
-require_once 'Phoursquare/Venue/AbstractMember.php';
 
 /**
  * Phoursquare_Venue_Tip
@@ -50,7 +47,7 @@ require_once 'Phoursquare/Venue/AbstractMember.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
+class Phoursquare_Venue_Tip
 {
     /**
      *
@@ -69,6 +66,12 @@ class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
      * @var string
      */
     protected $_created;
+
+    /**
+     *
+     * @var integer
+     */
+     protected $_id;
     
     /**
      *
@@ -82,7 +85,16 @@ class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
         Phoursquare_Venue $venue,
         Phoursquare_Service $service)
     {
-        parent::__construct($data, $venue, $service);
+        $this->_venue   = $venue;
+        $this->_service = $service;
+
+        if(!property_exists($data, 'id')) {
+            throw new Exception('Missing \'id\' poperty.');
+        }
+
+        if(property_exists($data, 'id')) {
+            $this->_id = (int) $data->id;
+        }
 
         if(property_exists($data, 'user') &&
            property_exists($data->user, 'id')
@@ -146,5 +158,32 @@ class Phoursquare_Venue_Tip extends Phoursquare_Venue_AbstractMember
     {
         return $this->getRelatedVenue()
                     ->getTips();
+    }
+
+    /**
+     *
+     * @return Phoursquare_Venue
+     */
+    public function getRelatedVenue()
+    {
+        return $this->_venue;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Service
+     */
+    public function getService()
+    {
+        return $this->_service;
+    }
+
+    /**
+     *
+     * @return integer
+     */
+    public function getid()
+    {
+        return $this->_id;
     }
 }

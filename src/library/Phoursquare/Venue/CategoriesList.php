@@ -35,12 +35,10 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_Venue_AbstractMemberList
- * @uses Phoursquare_Venue_Category
+ * @uses Phoursquare_CategoriesList
  */
 
-require_once 'Phoursquare/Venue/AbstractMemberList.php';
-require_once 'Phoursquare/Venue/Category.php';
+require_once 'Phoursquare/CategoriesList.php';
 
 /**
  * Phoursquare_Venue_CategoriesList
@@ -52,47 +50,44 @@ require_once 'Phoursquare/Venue/Category.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_CategoriesList 
-    extends Phoursquare_Venue_AbstractMemberList
+class Phoursquare_Venue_CategoriesList extends Phoursquare_CategoriesList
 {
     /**
      *
-     * @return Phoursquare_Venue_Category
+     * @var Phoursquare_Venue
+     */
+    protected $_venue;
+
+
+    public function __construct(
+        $data,
+        Phoursquare_Service $service,
+        Phoursquare_Venue $venue
+    ) {
+        parent::__construct($data, $service, null);
+    }
+
+
+    /**
+     *
+     * @return Phoursquare_Venue
+     */
+    protected function getRelatedVenue()
+    {
+        return $this->_venue;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Category
      */
     protected function _parse($key)
     {
-        return new Phoursquare_Venue_Category(
-            $this->_data[$key],
-            $this->_venue,
-            $this->getService()
+        return $this->getService()->getCategory(
+            $this->_data[$key]
         );
     }
 
-    /**
-     *
-     * @return Phoursquare_Venue_Category
-     */
-    public function  current()
-    {
-        return parent::current();
-    }
 
-    /**
-     *
-     * @return Phoursquare_Venue_Category
-     */
-    public function getFirstInList()
-    {
-        return parent::getFirstInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Category
-     */
-    public function getLastInList()
-    {
-        return parent::getLastInList();
-    }
 
 }
