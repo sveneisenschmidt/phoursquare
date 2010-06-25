@@ -63,14 +63,20 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
 
     /**
      *
+     * @var array
+     */
+    protected $_filteredIds = array();
+
+    /**
+     *
      * @var integer
      */
     protected $_key = 0;
 
-
     /**
      *
      * @param array $data
+     * @param Phoursquare_Service $service
      */
     public function __construct(array $data, Phoursquare_Service $service)
     {
@@ -136,7 +142,16 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
      */
     public function valid()
     {
-        return isset($this->_data[$this->_key]);
+        if(!isset($this->_data[$this->_key])) {
+            return false;
+        }
+
+        $id = $this->_data[$this->_key];
+        if(in_array($id, $this->_filteredIds)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -168,5 +183,27 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
         
         return $this->_parse($key);
     }
+
+    /**
+     *
+     * @param integer $id
+     * @return Phoursquare_AbstractResultSet
+     */
+    public function filter($id)
+    {
+        array_push($this->_filteredIds, $id);
+        return $this;
+    }
+
+    /**
+     *
+     * @return Phoursquare_AbstractResultSet
+     */
+    public function clearFilter()
+    {
+        $this->_filteredIds = array();
+        return $this;
+    }
+
 
 }

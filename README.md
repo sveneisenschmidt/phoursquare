@@ -114,6 +114,33 @@ Phoursquare_Cache_AbstractCache or use Zend_Cache
     }
 
 
+**Category retrieval & traversing:**
+
+    $cineplex = $service->getCategories()
+                        ->find(78973);
+    $name = $cineplex->getNodename();
+
+    // OR
+
+    $cineplex = $service->getCategory(78973);
+
+    // You can also iterate over Siblings
+
+    $siblings = $service->getCategory(78973)
+                        ->getSiblings();
+
+    foreach($siblings as $sibling) {
+
+        // Should never print 78973
+        print $sibling->getId();
+    }
+
+    // Traversing
+
+    $cineplex = $service->getCategory(78973);
+    $theater  = $cineplex->getParentCategory();
+    
+
 **Check-in & Venue retrieval:**
 
     $myself   = $service->getAuthenticatedUser();

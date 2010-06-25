@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Copyright (c) 2010, Sven Eisenschmidt.
@@ -38,7 +39,6 @@
  * @uses Phoursquare_CategoriesList
  */
 
-
 /**
  * Phoursquare_Category
  *
@@ -49,8 +49,7 @@
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Category
-{
+class Phoursquare_Category {
 
     /**
      *
@@ -62,31 +61,37 @@ class Phoursquare_Category
      *
      * @var integer
      */
-     protected $_id;
+    protected $_id;
 
     /**
      *
      * @var string
      */
-     protected $_nodename;
+    protected $_nodename;
 
     /**
      *
      * @var string
      */
-     protected $_fullpathname;
+    protected $_fullpathname;
 
     /**
      *
      * @var string
      */
-     protected $_iconurl;
+    protected $_iconurl;
 
     /**
      *
      * @var array
      */
-     protected $_categories;
+    protected $_categories;
+    
+    /**
+     *
+     * @var Phoursquare_Category
+     */
+    protected $_parent;
 
     /**
      *
@@ -95,30 +100,58 @@ class Phoursquare_Category
      * @param Phoursquare_Service $service
      * @param
      */
-    public function __construct(stdClass $data, Phoursquare_Service $service)
-    {
+    public function __construct(
+        stdClass $data, 
+        Phoursquare_Service $service,
+        Phoursquare_Category $parentCategory = null
+    ) {
         $this->_service = $service;
 
-        if(property_exists($data, 'id')) {
+        if (!is_null($parentCategory)) {
+            $this->_parent = $parentCategory;
+        }
+
+        if (property_exists($data, 'id')) {
             $this->_id = (int) $data->id;
         }
 
-        if(property_exists($data, 'nodename')) {
+        if (property_exists($data, 'nodename')) {
             $this->_nodename = $data->nodename;
         }
 
-        if(property_exists($data, 'fullpathname')) {
+        if (property_exists($data, 'fullpathname')) {
             $this->_fullpathname = $data->fullpathname;
         }
 
-        if(property_exists($data, 'iconurl')) {
+        if (property_exists($data, 'iconurl')) {
             $this->_iconurl = $data->iconurl;
         }
 
-        if(property_exists($data, 'categories')) {
+        if (property_exists($data, 'categories')) {
             $this->_categories = $data->categories;
         }
+    }
 
+    /**
+     *
+     * @return Phoursquare_Category
+     */
+    public function getParentCategory()
+    {
+        if (!$this->hasParentCategory()) {
+            return null;
+        }
+
+        return $this->_parent;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasParentCategory()
+    {
+        return!is_null($this->_parent);
     }
 
     /**
@@ -173,7 +206,7 @@ class Phoursquare_Category
     public function hasCategories()
     {
         return is_array($this->_categories) ||
-                   is_object($this->_categories);
+        is_object($this->_categories);
     }
 
     /**
@@ -182,17 +215,41 @@ class Phoursquare_Category
      */
     public function getCategories()
     {
-        if(!$this->hasCategories()) {
+        if (!$this->hasCategories()) {
             return null;
         }
 
-        if(!($this->_categories instanceof Phoursquare_CategoriesList)) {
+        if (!($this->_categories instanceof Phoursquare_CategoriesList)) {
             require_once 'Phoursquare/CategoriesList.php';
-            $this->_categories = new  Phoursquare_CategoriesList(
-                $this->_categories, $this->getService()
+            $this->_categories = new Phoursquare_CategoriesList(
+                            $this->_categories, $this->getService(), $this
             );
         }
 
         return $this->_categories;
     }
+
+    /**
+     *
+     * @return Phoursquare_CategoriesList
+     */
+    public function getSiblings()
+    {
+        if(!$this->hasParentCategory()) {
+            return new Phoursquare_CategoriesList(
+                array(),
+                $this->getService(),
+                null
+            );
+        }
+
+        $categories = $this->getParentCategory()
+                           ->getCategories();
+        
+        $siblings   = clone $categories->filter($this->getId());
+        $categories->clearFilter();
+
+        return $siblings;
+    }
+    
 }

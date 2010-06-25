@@ -58,13 +58,59 @@ class Phoursquare_CategoriesList
 {
     /**
      *
-     * @return *
+     * @var Phoursquare_Category
+     */
+    protected $_parent;
+
+    /**
+     *
+     * @param array $data
+     * @param Phoursquare_Service $service
+     */
+    public function __construct(
+        array $data,
+        Phoursquare_Service $service,
+        Phoursquare_Category $parentCategory = null
+    ) {
+        parent:: __construct($data, $service);
+
+        if(!is_null($parentCategory)) {
+            $this->_parent = $parentCategory;
+        }
+    }
+
+    /**
+     *
+     * @return Phoursquare_Category
+     */
+    public function getParentCategory()
+    {
+        if(!$this->hasParentCategory()) {
+            return null;
+        }
+        
+        return $this->_parent;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasParentCategory()
+    {
+        return !is_null($this->_parent);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Category
      */
     protected function _parse($key)
     { 
         return new Phoursquare_Category(
             $this->_data[$key],
-            $this->getService()
+            $this->getService(),
+            $this->getParentCategory()
         );
     }
 
