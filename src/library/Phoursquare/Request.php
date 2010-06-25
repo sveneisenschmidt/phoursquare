@@ -190,6 +190,18 @@ class Phoursquare_Request
 
      /**
       *
+      * @return stdClass
+      */
+     public function fetchCategories()
+     {
+        $client = $this->getClient();
+        $client->setUri(self::API_URI . '/v1/categories.json');
+
+        return $this->_fetch($client, array());
+     }
+
+     /**
+      *
       * @param integer $venueId
       * @return stdClass
       */

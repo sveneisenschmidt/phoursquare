@@ -35,15 +35,15 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_Venue_AbstractMemberList
- * @uses Phoursquare_Venue_Category
+ * @uses Phoursquare_AbstractResultSet
+ * @uses Phoursquare_Category
  */
 
-require_once 'Phoursquare/Venue/AbstractMemberList.php';
-require_once 'Phoursquare/Venue/Category.php';
+require_once 'Phoursquare/AbstractResultSet.php';
+require_once 'Phoursquare/Category.php';
 
 /**
- * Phoursquare_Venue_CategoriesList
+ * Phoursquare_CategoriesList
  *
  * @category ResultSet
  * @package Phoursquare
@@ -52,25 +52,25 @@ require_once 'Phoursquare/Venue/Category.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_CategoriesList 
-    extends Phoursquare_Venue_AbstractMemberList
+class Phoursquare_CategoriesList
+    extends Phoursquare_AbstractResultSet
+        implements RecursiveIterator
 {
     /**
      *
-     * @return Phoursquare_Venue_Category
+     * @return *
      */
     protected function _parse($key)
-    {
-        return new Phoursquare_Venue_Category(
+    { 
+        return new Phoursquare_Category(
             $this->_data[$key],
-            $this->_venue,
             $this->getService()
         );
     }
 
     /**
      *
-     * @return Phoursquare_Venue_Category
+     * @return Phoursquare_Category
      */
     public function  current()
     {
@@ -79,7 +79,7 @@ class Phoursquare_Venue_CategoriesList
 
     /**
      *
-     * @return Phoursquare_Venue_Category
+     * @return Phoursquare_Category
      */
     public function getFirstInList()
     {
@@ -88,11 +88,50 @@ class Phoursquare_Venue_CategoriesList
 
     /**
      *
-     * @return Phoursquare_Venue_Category
+     * @return Phoursquare_Category
      */
     public function getLastInList()
     {
         return parent::getLastInList();
+    }
+
+    /**
+     *
+     * @return Phoursquare_Category
+     */
+    public function find($id)
+    {
+
+        $search = new RecursiveIteratorIterator($this,
+                        RecursiveIteratorIterator::LEAVES_ONLY);
+
+        foreach($search as $category) {
+            if($category->getId() == $id) {
+                return $category;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     *
+     * @return Phoursquare_CategoriesList
+     */
+    public function getChildren()
+    {
+        return $this->current()
+                    ->getCategories();
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function  hasChildren()
+    {
+        return $this->current()
+                    ->hasCategories();
     }
 
 }

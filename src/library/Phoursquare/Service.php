@@ -196,7 +196,7 @@ abstract class Phoursquare_Service
     /**
      *
      * @param integer $fromUserId
-     * @return Phoursquare_ResultSet
+     * @return Phoursquare_UsersList
      */
     public function getFriends($fromUserId = null)
     {
@@ -211,6 +211,36 @@ abstract class Phoursquare_Service
         return new Phoursquare_UsersList(
             $data->friends, $this
         );
+    }
+
+    /**
+     *
+     * @return Phoursquare_CategoriesList
+     */
+    public function getCategories()
+    {
+        $data = $this->getRequest()
+                     ->fetchCategories();
+
+        if(!property_exists($data, 'categories')) {
+            throw new Exception('No valid categories response returned.');
+        }
+
+        require_once 'Phoursquare/CategoriesList.php';
+        return new Phoursquare_CategoriesList(
+            $data->categories, $this
+        );
+    }
+
+    /**
+     *
+     * @param integer $id
+     * @return Phoursquare_Category
+     */
+    public function getCategory($id)
+    {
+        return $this->getCategories()
+                    ->find((int) $id);
     }
 
     /**
