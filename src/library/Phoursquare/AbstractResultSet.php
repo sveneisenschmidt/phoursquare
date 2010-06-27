@@ -106,7 +106,13 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
      */
     public function count()
     {
-        return count($this->_data);
+        if(empty($this->_filteredIds)) {
+            return count($this->_data);
+        }
+
+        
+
+
     }
 
     /**
@@ -145,8 +151,12 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
         if(!isset($this->_data[$this->_key])) {
             return false;
         }
-
+        
         $id = $this->_data[$this->_key];
+        if(!is_int($id) && !is_numeric($id)) {
+            $id = $id->id;
+        }
+
         if(in_array($id, $this->_filteredIds)) {
             return false;
         }

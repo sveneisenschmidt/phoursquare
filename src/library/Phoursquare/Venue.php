@@ -36,6 +36,9 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phoursquare_Venue_Stats
+ * @uses Phoursquare_Venue_TipsList
+ * @uses Phoursquare_Venue_SpecialsList
+ * @uses Phoursquare_Venue_CategoriesList
  */
 
 /**
@@ -130,6 +133,12 @@ class Phoursquare_Venue
 
     /**
      *
+     * @var stdClass|Phoursquare_Venue_SpecialsList
+     */
+    protected $_specials;
+
+    /**
+     *
      * @param stdClass $data
      * @param Phoursquare_Service $service
      */
@@ -179,6 +188,10 @@ class Phoursquare_Venue
 
         if(property_exists($data, 'tips')) {
             $this->_tips = $data->tips;
+        }
+
+        if(property_exists($data, 'specials')) {
+            $this->_specials = $data->specials;
         }
 
         if(property_exists($data, 'categories')) {
@@ -307,6 +320,35 @@ class Phoursquare_Venue
         }
 
         return $this->_tips;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasSpecials()
+    {
+        return !is_null($this->_specials);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Venue_SpecialsList
+     */
+    public function getSpecials()
+    {
+        if(!$this->hasSpecials()) {
+            return null;
+        }
+
+        if(!($this->_specials instanceof Phoursquare_Venue_SpecialsList)) {
+            require_once 'Phoursquare/Venue/SpecialsList.php';
+            $this->_specials = new  Phoursquare_Venue_SpecialsList(
+                $this->_specials, $this, $this->getService()
+            );
+        }
+
+        return $this->_specials;
     }
 
     /**

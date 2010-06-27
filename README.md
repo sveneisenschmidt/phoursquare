@@ -290,7 +290,7 @@ Phoursquare_Cache_AbstractCache or use Zend_Cache
 **Avaliable Methods for Venue Statistics:**
 
 * getCheckinCount
-* hereCheckedIn
+* getPeopleCountHereCheckedIn
 * beenHere
 * hasMayor
 * getMayor

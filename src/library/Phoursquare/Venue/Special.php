@@ -38,7 +38,7 @@
  */
 
 /**
- * Phoursquare_Venue_Stats
+ * Phoursquare_Venue_Special
  *
  * @category Venue
  * @package Phoursquare
@@ -47,7 +47,7 @@
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_Stats
+class Phoursquare_Venue_Special
 {
 
     /**
@@ -58,34 +58,10 @@ class Phoursquare_Venue_Stats
 
     /**
      *
-     * @var Phoursquare_Service
-     */
-    protected $_service;
-
-    /**
-     *
      * @var integer
      */
-    protected $_checkins = 0;
+     protected $_id;
 
-    /**
-     *
-     * @var boolean
-     */
-    protected $_herenow = false;
-
-    /**
-     *
-     * @var boolean
-     */
-    protected $_beenhere = false;
-
-    /**
-     *
-     * @var integer|Phoursquare_User_AbstractUser
-     */
-    protected $_mayor;
-    
     /**
      *
      * @param stdClass $data
@@ -101,62 +77,13 @@ class Phoursquare_Venue_Stats
         $this->_venue   = $venue;
         $this->_service = $service;
 
-        if(property_exists($data, 'checkins')) {
-            $this->_checkins = $data->checkins;
+        if(!property_exists($data, 'id')) {
+            throw new Exception('Missing \'id\' poperty.');
         }
 
-        if(property_exists($data, 'herenow')) {
-            $this->_herenow = $data->herenow;
+        if(property_exists($data, 'id')) {
+            $this->_id = (int) $data->id;
         }
-
-        if(property_exists($data, 'beenhere') &&
-           property_exists($data->beenhere, 'me')
-        ) {
-            $this->_beenhere = (bool) $data->beenhere->me;
-        }
-
-        if(property_exists($data, 'mayor') &&
-           property_exists($data->mayor, 'user') &&
-           property_exists($data->mayor->user, 'id')
-        ) {
-            $this->_mayor = $data->mayor->user->id;
-        }
-    }
-
-    /**
-     *
-     * @return integer
-     */
-    public function getCheckInCount()
-    {
-        return (int) $this->_checkins;
-    }
-
-    /**
-     *
-     * @return boolean
-     */
-    public function getPeopleCountHereCheckedIn()
-    {
-        return (bool) $this->_herenow;
-    }
-
-    /**
-     *
-     * @return boolean
-     */
-    public function beenHere()
-    {
-        return (bool) $this->_beenhere;
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue
-     */
-    public function getRelatedVenue()
-    {
-        return $this->_venue;
     }
 
     /**
@@ -170,35 +97,38 @@ class Phoursquare_Venue_Stats
 
     /**
      *
-     * @return Phoursquare_User_AbstractUser
+     * @return integer
      */
-    public function getMayor()
+    public function getid()
     {
-        if(!$this->hasMayor()) {
-            return null;
-        }
-
-        if(!is_object($this->_mayor) && 
-          (!$this->_mayor instanceof Phoursquare_User_AbstractUser)
-        ) {
-            $this->_mayor = $this->getService()->getUser(
-                $this->_mayor
-            );
-        }
-
-        return $this->_mayor;
+        return $this->_id;
     }
 
     /**
      *
-     * @return boolean
+     * @return Phoursquare_Venue_Special
      */
-    public function hasMayor()
+    public function getRelatedVenue()
     {
-        if(is_null($this->_mayor)) {
-            return false;
+        return $this->_venue;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Venue_SpecialsList
+     */
+    public function getOtherSpecials()
+    {
+        if(is_null($this->getRelatedVenue())) {
+            return array();
         }
 
-        return true;
+        $specials = $this->getRelatedVenue()
+                         ->getSpecials();
+
+        $siblings   = clone $specials->filter($this->getId());
+        $specials->clearFilter();
+
+        return $siblings;
     }
 }
