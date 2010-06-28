@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category ResultSet
+ * @category Venue
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,96 +35,59 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_AbstractResultSet
- * @uses Phoursquare_Venue_Tip
+ * @uses Phoursquare_Venue
  */
 
-require_once 'Phoursquare/AbstractResultSet.php';
-require_once 'Phoursquare/Venue/Tip.php';
+require_once 'Phoursquare/Venue.php';
 
 /**
- * Phoursquare_Venue_TipsList
+ * Phoursquare_Search_Venue
  *
- * @category ResultSet
+ * @category Venue
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_TipsList extends Phoursquare_AbstractResultSet
+class Phoursquare_Search_Venue extends Phoursquare_Venue
 {
     /**
      *
-     * @var Phoursquare_Venue
+     * @var integer
      */
-    protected $_venue;
+    protected $_distance;
 
     /**
      *
-     * @param array $data
+     * @param stdClass $data
      * @param Phoursquare_Service $service
-     * @param integer|Phoursquare_Venue $venue
      */
-    public function  __construct(
-        array $data,
-        Phoursquare_Service $service,
-        $venue
-    ) {
+    public function __construct(stdClass $data, Phoursquare_Service $service)
+    {
         parent::__construct($data, $service);
-        $this->_venue = $venue;
+
+        if(property_exists($data, 'distance')) {
+            $this->_distance = $data->distance;
+        }
     }
 
     /**
      *
-     * @return Phoursquare_Venue_Tip
+     * @return integer
      */
-    protected function _parse($key)
+    public function getDistance()
     {
-        return new Phoursquare_Venue_Tip(
-            $this->_data[$key],
-            $this->getService(),
-            $this->_venue
-        );
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function  current()
-    {
-        return parent::current();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getFirstInList()
-    {
-        return parent::getFirstInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getLastInList()
-    {
-        return parent::getLastInList();
+        return (int)$this->_distance;
     }
 
     /**
      *
      * @return Phoursquare_Venue
      */
-    public function getRelatedVenue()
+    public function getFullVenue()
     {
-        if(is_int($this->_venue) || is_numeric($this->_venue)) {
-            $this->_venue = $this->getService()
-                                 ->getVenue($this->_venue);
-        }
-        return $this->_venue;
+        return $this->getService()
+                    ->getVenue($this->getId());
     }
 }

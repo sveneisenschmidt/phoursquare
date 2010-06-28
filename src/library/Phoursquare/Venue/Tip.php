@@ -76,14 +76,14 @@ class Phoursquare_Venue_Tip
     /**
      *
      * @param stdClass $data
-     * @param Phoursquare_Venue $venue
      * @param Phoursquare_Service $service
+     * @param integer|Phoursquare_Venue $venue
      * @param
      */
     public function __construct(
         stdClass $data,
-        Phoursquare_Venue $venue,
-        Phoursquare_Service $service)
+        Phoursquare_Service $service,
+        $venue)
     {
         $this->_venue   = $venue;
         $this->_service = $service;
@@ -166,6 +166,10 @@ class Phoursquare_Venue_Tip
      */
     public function getRelatedVenue()
     {
+        if(is_int($this->_venue) || is_numeric($this->_venue)) {
+            $this->_venue = $this->getService()
+                                 ->getVenue($this->_venue);
+        }
         return $this->_venue;
     }
 

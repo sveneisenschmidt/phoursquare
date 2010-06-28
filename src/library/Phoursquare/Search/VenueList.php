@@ -36,14 +36,14 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phoursquare_AbstractResultSet
- * @uses Phoursquare_Venue_Tip
+ * @uses Phoursquare_Search_Venue
  */
 
 require_once 'Phoursquare/AbstractResultSet.php';
-require_once 'Phoursquare/Venue/Tip.php';
+require_once 'Phoursquare/Search/Venue.php';
 
 /**
- * Phoursquare_Venue_TipsList
+ * Phoursquare_Search_VenueList
  *
  * @category ResultSet
  * @package Phoursquare
@@ -52,79 +52,17 @@ require_once 'Phoursquare/Venue/Tip.php';
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_TipsList extends Phoursquare_AbstractResultSet
+class Phoursquare_Search_VenueList extends Phoursquare_AbstractResultSet
 {
     /**
      *
-     * @var Phoursquare_Venue
-     */
-    protected $_venue;
-
-    /**
-     *
-     * @param array $data
-     * @param Phoursquare_Service $service
-     * @param integer|Phoursquare_Venue $venue
-     */
-    public function  __construct(
-        array $data,
-        Phoursquare_Service $service,
-        $venue
-    ) {
-        parent::__construct($data, $service);
-        $this->_venue = $venue;
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
+     * @return Phoursquare_Search_Venue
      */
     protected function _parse($key)
     {
-        return new Phoursquare_Venue_Tip(
+        return new Phoursquare_Search_Venue(
             $this->_data[$key],
-            $this->getService(),
-            $this->_venue
+            $this->getService()
         );
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function  current()
-    {
-        return parent::current();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getFirstInList()
-    {
-        return parent::getFirstInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getLastInList()
-    {
-        return parent::getLastInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue
-     */
-    public function getRelatedVenue()
-    {
-        if(is_int($this->_venue) || is_numeric($this->_venue)) {
-            $this->_venue = $this->getService()
-                                 ->getVenue($this->_venue);
-        }
-        return $this->_venue;
     }
 }

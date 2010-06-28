@@ -52,6 +52,15 @@ class Phoursquare_Venue_Special
 
     /**
      *
+     *
+     * @var array
+     */
+    protected $_types = array(
+        'mayor', 'count', 'frequency', 'other'
+    );
+
+    /**
+     *
      * @var Phoursquare_Venue
      */
     protected $_venue;
@@ -61,6 +70,42 @@ class Phoursquare_Venue_Special
      * @var integer
      */
      protected $_id;
+
+    /**
+     *
+     * @var string
+     */
+     protected $_message;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_mayor = false;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_count = false;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_frequency = false;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_other = false;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_kind = 'here';
 
     /**
      *
@@ -84,7 +129,99 @@ class Phoursquare_Venue_Special
         if(property_exists($data, 'id')) {
             $this->_id = (int) $data->id;
         }
+
+        if(property_exists($data, 'message')) {
+            $this->_message = $data->message;
+        }
+
+        if(property_exists($data, 'type') &&
+           in_array($data->type, $this->_types)
+        ) {
+            $this->{'_' . $data->type} = true;
+        }
+
+        if(property_exists($data, 'kind')) {
+            $this->_kind = $data->kind;
+            if($data->kind == 'nearby' && 
+               property_exists($data, 'venue') &&
+               property_exists($data->venue, 'id')
+            ) {
+                $this->_venue = (int)$id;
+            }
+        }
     }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isMayorSpecial()
+    {
+        return $this->_mayor;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isFrequencySpecial()
+    {
+        return $this->_frequency;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isCountSpecial()
+    {
+        return $this->_count;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isOtherSpecial()
+    {
+        return $this->_other;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isNearbySpecial()
+    {
+        if($this->_kind == 'nearby') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isHereSpecial()
+    {
+        if($this->_kind == 'here') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->_message;
+    }
+
 
     /**
      *
@@ -110,6 +247,13 @@ class Phoursquare_Venue_Special
      */
     public function getRelatedVenue()
     {
+        if(is_int($this->_venue) ||
+           is_numeric($this->_venue)
+        ) {
+            return $this->getService()
+                        ->getVenue($this->_venue);
+        }
+
         return $this->_venue;
     }
 

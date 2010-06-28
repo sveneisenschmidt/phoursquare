@@ -36,6 +36,7 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phourquare_Request
+ * @uses Phourquare_Search
  * @uses Phourquare_Cache_AbstractCache
  */
 
@@ -57,24 +58,13 @@ abstract class Phoursquare_Service
      *
      * @var Phoursquare_Request
      */
-    private $_request;
+    protected $_request;
     
     /**
      *
      * @var Phoursquare_Auth_Http
      */
-    private $_auth;
-
-    /**
-     *
-     * @param Phoursquare_Auth_Http $auth
-     */
-    public function __construct(Phoursquare_Auth_AbstractAuth $auth = null)
-    {
-        if(!is_null($auth)) {
-            $this->setAuth($auth);
-        }
-    }
+    protected $_auth;
 
     /**
      *
@@ -147,6 +137,16 @@ abstract class Phoursquare_Service
     {
         return $this->getRequest()
                     ->getAuth();
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasAuth()
+    {
+        return $this->getRequest()
+                    ->hasAuth();
     }
 
     /**
@@ -313,6 +313,24 @@ abstract class Phoursquare_Service
         throw new Exception('No valid user class could be detected.');
     }
 
+    /**
+     *
+     * @return Phoursquare_Search
+     */
+    public function getSearch()
+    {
+        require_once 'Phoursquare/Search.php';
+        return new Phoursquare_Search($this);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Search
+     */
+    public function search()
+    {
+        return $this->getSearch();
+    }
 
 
 }

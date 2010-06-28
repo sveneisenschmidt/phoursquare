@@ -51,4 +51,15 @@ require_once 'Phoursquare/Service.php';
  * @link www.unsicherheitsagent.de
  */
 final class Phoursquare extends Phoursquare_Service
-{}
+{
+    /**
+     *
+     * @param Phoursquare_Auth_Http $auth
+     */
+    public function __construct(Phoursquare_Auth_AbstractAuth $auth = null)
+    {
+        if(!is_null($auth)) {
+            $this->setAuth($auth);
+        }
+    }
+}

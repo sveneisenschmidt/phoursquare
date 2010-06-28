@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category ResultSet
+ * @category Service
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,96 +35,78 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_AbstractResultSet
- * @uses Phoursquare_Venue_Tip
+ * @uses Phourquare_Service
  */
 
-require_once 'Phoursquare/AbstractResultSet.php';
-require_once 'Phoursquare/Venue/Tip.php';
+require_once 'Phoursquare/Service.php';
 
 /**
- * Phoursquare_Venue_TipsList
+ * PhoursquareSingleton
  *
- * @category ResultSet
+ * @category Service
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_TipsList extends Phoursquare_AbstractResultSet
+final class PhoursquareSingleton extends Phoursquare_Service
 {
-    /**
-     *
-     * @var Phoursquare_Venue
-     */
-    protected $_venue;
 
     /**
      *
-     * @param array $data
-     * @param Phoursquare_Service $service
-     * @param integer|Phoursquare_Venue $venue
+     * @var PhoursquareSingleton
      */
-    public function  __construct(
-        array $data,
-        Phoursquare_Service $service,
-        $venue
-    ) {
-        parent::__construct($data, $service);
-        $this->_venue = $venue;
+    private static $instance;
+
+    /**
+     *
+     * @return void
+     */
+    private function __construct() {}
+
+    /**
+     *
+     * @return void
+     */
+    private function __clone() {}
+
+    /**
+     *
+     * @return PhoursquareSingleton
+     */
+    public static function getInstance() {
+
+       if (self::$instance === NULL) {
+           self::$instance = new self;
+       }
+
+       return self::$instance;
     }
 
     /**
      *
-     * @return Phoursquare_Venue_Tip
+     * @return boolean
      */
-    protected function _parse($key)
+    public static function hasAuthInstance()
     {
-        return new Phoursquare_Venue_Tip(
-            $this->_data[$key],
-            $this->getService(),
-            $this->_venue
-        );
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function  current()
-    {
-        return parent::current();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getFirstInList()
-    {
-        return parent::getFirstInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getLastInList()
-    {
-        return parent::getLastInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue
-     */
-    public function getRelatedVenue()
-    {
-        if(is_int($this->_venue) || is_numeric($this->_venue)) {
-            $this->_venue = $this->getService()
-                                 ->getVenue($this->_venue);
+        if(!self::$instance) {
+            return false;
         }
-        return $this->_venue;
+
+        return self::getInstance()->hasAuth();
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public static function hasCacheInstance()
+    {
+        if(!self::$instance) {
+            return false;
+        }
+
+        return self::getInstance()->hasCache();
     }
 }

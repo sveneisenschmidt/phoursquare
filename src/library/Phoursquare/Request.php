@@ -82,6 +82,12 @@ class Phoursquare_Request
 
     /**
      *
+     * @var Phoursquare_Cache_AbstractCache
+     */
+    protected $_cache;
+
+    /**
+     *
      * @param Phoursquare_Auth_AbstractAuth $auth
      * @return Phoursquare_Request
      */
@@ -98,6 +104,16 @@ class Phoursquare_Request
      public function getAuth()
      {
          return $this->_auth;
+     }
+
+    /**
+     *
+     * @return boolean
+     */
+     public function hasAuth()
+     {
+         return is_object($this->_auth) &&
+                    ($this->_auth instanceof Phoursquare_Auth_AbstractAuth);
      }
 
     /**
@@ -274,6 +290,25 @@ class Phoursquare_Request
             $response->getResponseBody()
         );
      }
+     
+     /**
+      *
+      * @param string $uri
+      * @param array $parameters
+      * @return stdClass
+      */
+     public function fetchUrl($uri, array $parameters = array())
+     {
+        $client = $this->getClient();
+        $client->setUri(self::API_URI . $uri);
+
+        foreach($parameters as $name => $value) {
+            $client->setParameterGet($name, $value);
+        }
+
+        return $this->_fetch($client, array_merge(array($uri), $parameters));
+     }
+
 
      /**
       *

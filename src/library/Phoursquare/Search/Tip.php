@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category ResultSet
+ * @category Venue
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,96 +35,20 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_AbstractResultSet
  * @uses Phoursquare_Venue_Tip
  */
 
-require_once 'Phoursquare/AbstractResultSet.php';
 require_once 'Phoursquare/Venue/Tip.php';
 
 /**
- * Phoursquare_Venue_TipsList
+ * Phoursquare_Search_Tip
  *
- * @category ResultSet
+ * @category Venue
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_Venue_TipsList extends Phoursquare_AbstractResultSet
-{
-    /**
-     *
-     * @var Phoursquare_Venue
-     */
-    protected $_venue;
-
-    /**
-     *
-     * @param array $data
-     * @param Phoursquare_Service $service
-     * @param integer|Phoursquare_Venue $venue
-     */
-    public function  __construct(
-        array $data,
-        Phoursquare_Service $service,
-        $venue
-    ) {
-        parent::__construct($data, $service);
-        $this->_venue = $venue;
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    protected function _parse($key)
-    {
-        return new Phoursquare_Venue_Tip(
-            $this->_data[$key],
-            $this->getService(),
-            $this->_venue
-        );
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function  current()
-    {
-        return parent::current();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getFirstInList()
-    {
-        return parent::getFirstInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue_Tip
-     */
-    public function getLastInList()
-    {
-        return parent::getLastInList();
-    }
-
-    /**
-     *
-     * @return Phoursquare_Venue
-     */
-    public function getRelatedVenue()
-    {
-        if(is_int($this->_venue) || is_numeric($this->_venue)) {
-            $this->_venue = $this->getService()
-                                 ->getVenue($this->_venue);
-        }
-        return $this->_venue;
-    }
-}
+class Phoursquare_Search_Tip extends Phoursquare_Venue_Tip
+{}

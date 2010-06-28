@@ -15,10 +15,10 @@ Currently in Read-only-mode.
 * Get Major from Venue
 * Caching
 * Get Venue Categories
+* List Categories
 
 **ToDo:**
 
-* List Categories
 * Able to Check-in somewhere
 * Search for Venues
 * ... some more I forgot ;)
@@ -44,6 +44,36 @@ Currently in Read-only-mode.
     $service = new Phoursquare($auth);
 
 
+**Setup as Singleton:**
+
+    $service = PhoursquareSingleton::getInstance();
+
+    // if(!$service->hasAuth()) {
+    if(!PhoursquareSingleton::hasAuthInstance()) {
+        require_once 'Phoursquare/Auth/Http.php';
+        $auth    = new Phoursquare_Auth_Http();
+        $auth->setUsername('sven.eisenschmidt@gmail.com');
+        $auth->setPassword('svenei86');
+        $service->setAuth($auth);
+    }
+
+    // if(!$service->hasCache()) {
+    if(!PhoursquareSingleton::hasCacheInstance()) {
+        require_once 'Zend/Cache.php';
+        $cache = Zend_Cache::factory(
+            'Core', 'File',
+            array(
+                'lifetime' => 360,
+                'automatic_serialization' => true
+            ),
+            array(
+                'cache_dir' => sys_get_temp_dir()
+            )
+        );
+        $service->setCache($cache);
+    }
+
+
 **Caching:**
 
 You can use your own Cache Class by only extending it from 
@@ -62,6 +92,34 @@ Phoursquare_Cache_AbstractCache or use Zend_Cache
     );
 
     $service->setCache($cache);
+
+**Search:**
+
+You can search through an fluid interface which loads the results
+when you iterate "over" it.
+
+    $results = $service->search()
+                       ->query(Phoursquare_Query::TIP) //OR Phoursquare::VENUE
+                       ->nearby() //OR me()
+                       ->limit(10)
+                       ->geolat(52.516805)
+                       ->geolong(13.380854);
+
+    foreach($results as $result) {
+
+        print $result->getText();
+
+        // loads the related venue
+        // Be careful when loading related venues, this can be very time consuming!
+        print $result->getRelatedVenue()
+                     ->getName();
+
+    }
+
+Shortcut methods
+
+* use ::venue() instead of ::query(Phoursquare_Query::VENUE)
+* use ::tip() instead of ::query(Phoursquare_Query::TIP)
 
 
 **User retrieval:**
