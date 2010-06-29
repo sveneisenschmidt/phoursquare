@@ -51,4 +51,6 @@ require_once 'Phoursquare/User/AbstractUser.php';
  * @link www.unsicherheitsagent.de
  */
 class Phoursquare_User_NonRelatedUser extends Phoursquare_User_AbstractUser
-{}
+{
+
+}

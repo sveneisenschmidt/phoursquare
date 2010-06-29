@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Copyright (c) 2010, Sven Eisenschmidt.
@@ -27,40 +28,104 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category User
+ * @category GeoLocation
  * @package Phoursquare
  *
  * @license MIT-Style License
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
- *
- * @uses Phoursquare_User_AbstractAdvancedUser
  */
-
-require_once 'Phoursquare/User/AbstractAdvancedUser.php';
 
 /**
- * Phoursquare_User_Friend
+ * Phoursquare_GeoLocation
  *
- * @category User
+ * @category GeoLocation
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_User_Friend extends Phoursquare_User_AbstractAdvancedUser
+class Phoursquare_GeoLocation
 {
+    /**
+     *
+     * @var string
+     */
+    protected $_formattedAddress;
+    /**
+     *
+     * @var string
+     */
+    protected $_latitude;
+    /**
+     *
+     * @var string
+     */
+    protected $_longitude;
 
     /**
      *
-     * @return Phoursquare_User_AbstractUser
+     * @param string $address
+     * @return Phoursquare_GeoLocation 
      */
-    public function getFullUser()
+    public function setFormattedAddress($address)
     {
-        return $this->getService()
-                    ->getUser($this->getId());
+        $this->_formattedAddress = $address;
+        return $this;
     }
+
+    /**
+     *
+     * @return string
+     */
+    public function getFormattedAddress()
+    {
+        return $this->_formattedAddress;
+    }
+
+    /**
+     *
+     * @param string $lat
+     * @return Phoursquare_GeoLocation
+     */
+    public function setLatitude($lat)
+    {
+        $this->_latitude = $lat;
+        return $this;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getLatitude()
+    {
+        return $this->_latitude;
+    }
+
+    /**
+     *
+     * @param string $lng
+     * @return Phoursquare_GeoLocation
+     */
+    public function setLongitude($lng)
+    {
+        $this->_longitude = $lng;
+        return $this;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getLongitude()
+    {
+        return $this->_longitude;
+    }
+
+
+
 
 }

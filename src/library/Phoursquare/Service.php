@@ -37,6 +37,7 @@
  *
  * @uses Phourquare_Request
  * @uses Phourquare_Search
+ * @uses Phoursquare_GeoLocation
  * @uses Phourquare_Cache_AbstractCache
  */
 
@@ -325,12 +326,52 @@ abstract class Phoursquare_Service
 
     /**
      *
+     * @return array of Phoursquare_GeoLocation
+     */
+    public function geocode(array $parts)
+    {
+        $data = $this->getRequest()
+                     ->resolveAddress($parts);
+
+        if(empty($data->results) ||
+           !isset($data->results[0])
+        ) {
+            throw new Exception('Address not found!');
+        }
+
+        $stack = array();
+        require_once 'Phoursquare/GeoLocation.php';
+
+        foreach($data->results as $data) {
+
+            $geoLocation = new Phoursquare_GeoLocation();
+            if(property_exists($data, 'formatted_address')) {
+                $geoLocation->setFormattedAddress($data->formatted_address);
+            }
+
+            if(property_exists($data, 'geometry') &&
+               property_exists($data->geometry, 'location')
+            ) {
+                $location = $data->geometry->location;
+                if(property_exists($location, 'lat')) {
+                    $geoLocation->setLatitude($location->lat);
+                }
+                if(property_exists($location, 'lng')) {
+                    $geoLocation->setLongitude($location->lng);
+                }
+            }
+            array_push($stack, $geoLocation);
+        }
+        
+        return $stack;
+    }
+
+    /**
+     *
      * @return Phoursquare_Search
      */
     public function search()
     {
         return $this->getSearch();
     }
-
-
 }

@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category User
+ * @category ResultSet
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,32 +35,63 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_User_AbstractAdvancedUser
+ * @uses Phoursquare_AbstractResultSet
+ * @uses Phoursquare_User_Friend
  */
 
-require_once 'Phoursquare/User/AbstractAdvancedUser.php';
+require_once 'Phoursquare/AbstractResultSet.php';
+require_once 'Phoursquare/User/NonRelatedUser.php';
 
 /**
- * Phoursquare_User_Friend
+ * Phoursquare_Search_NonFriendsList
  *
- * @category User
+ * @category ResultSet
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_User_Friend extends Phoursquare_User_AbstractAdvancedUser
+class Phoursquare_Search_NonFriendsList extends Phoursquare_AbstractResultSet
 {
 
     /**
      *
-     * @return Phoursquare_User_AbstractUser
+     * @return Phoursquare_User_NonRelatedUser
      */
-    public function getFullUser()
+    protected function _parse($key)
     {
-        return $this->getService()
-                    ->getUser($this->getId());
+        return new Phoursquare_User_NonRelatedUser(
+            $this->_data[$key],
+            $this->getService()
+        );
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_NonRelatedUser
+     */
+    public function  current()
+    {
+        return parent::current();
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_NonRelatedUser
+     */
+    public function getFirstInList()
+    {
+        return parent::getFirstInList();
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_NonRelatedUser
+     */
+    public function getLastInList()
+    {
+        return parent::getLastInList();
     }
 
 }

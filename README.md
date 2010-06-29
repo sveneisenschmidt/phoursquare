@@ -16,11 +16,13 @@ Currently in Read-only-mode.
 * Caching
 * Get Venue Categories
 * List Categories
+* Search for Venues (from you or veryone nearby)
+* Search for Tips  (from you or veryone nearby)
+* Search for Users (only non friends) by Name, Phone or Twitter Nickname
 
 **ToDo:**
 
 * Able to Check-in somewhere
-* Search for Venues
 * ... some more I forgot ;)
 
 ## Basic Usage
@@ -120,6 +122,36 @@ Shortcut methods
 
 * use ::venue() instead of ::query(Phoursquare_Query::VENUE)
 * use ::tip() instead of ::query(Phoursquare_Query::TIP)
+
+Instead of using ::geolat() and ::geolong() you can set an address via:
+
+       ... // Query
+       ->address(array(
+           'Pariser Platz 4A',
+           'Berlin',
+           '10117',
+           'Germany'
+       ));
+
+The correspondending geo location will be retrieved via Google Maps Location API.
+Beware, the Request will fail and maybe throw an Exception when no correct addrress(es)
+could be found.
+
+**GeoLocation retrieval**
+
+    // expect $service is a fully initialized instance of Phoursquare
+    $foundAddresses = $service->geocode(array(
+                         'Pariser Platz 4A',
+                         'Berlin',
+                         '10117',
+                         'Germany'
+                      ));
+
+foundAddresses is a collection of GeoLocation Objects with these following methods:
+
+* getFormattedAddress
+* getLatitude
+* getLongitude
 
 
 **User retrieval:**

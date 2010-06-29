@@ -60,7 +60,13 @@ class Phoursquare_Request
      *
      * @var const
      */
-    const API_URI    = 'http://api.foursquare.com';
+    const FS_API_URI    = 'http://api.foursquare.com';
+
+    /**
+     *
+     * @var const
+     */
+    const GM_API_URI    = 'http://maps.google.com/maps/api';
 
     /**
      *
@@ -180,7 +186,7 @@ class Phoursquare_Request
      public function fetchUser($uid = null, $hash = null)
      {
         $client = $this->getClient();
-        $client->setUri(self::API_URI . '/v1/user.json');
+        $client->setUri(self::FS_API_URI . '/v1/user.json');
         if(!is_null($uid)) {
             $client->setParameterGet('uid', (string) $uid);
         }
@@ -196,7 +202,7 @@ class Phoursquare_Request
      public function fetchFriends($fromUserId = null)
      {
         $client = $this->getClient();
-        $client->setUri(self::API_URI . '/v1/friends.json');
+        $client->setUri(self::FS_API_URI . '/v1/friends.json');
         if(!is_null($fromUserId)) {
             $client->setParameterGet('uid', (string) $fromUserId);
         }
@@ -211,7 +217,7 @@ class Phoursquare_Request
      public function fetchCategories()
      {
         $client = $this->getClient();
-        $client->setUri(self::API_URI . '/v1/categories.json');
+        $client->setUri(self::FS_API_URI . '/v1/categories.json');
 
         return $this->_fetch($client, array());
      }
@@ -224,7 +230,7 @@ class Phoursquare_Request
      public function fetchVenue($venueId)
      {
         $client = $this->getClient();
-        $client->setUri(self::API_URI . '/v1/venue.json');
+        $client->setUri(self::FS_API_URI . '/v1/venue.json');
         $client->setParameterGet('vid', (string) $venueId);
 
         return $this->_fetch($client, array($venueId));
@@ -239,7 +245,7 @@ class Phoursquare_Request
      public function fetchHistory($limit = 25, $sinceId = null)
      {
         $client = $this->getClient();
-        $client->setUri(self::API_URI . '/v1/history.json');
+        $client->setUri(self::FS_API_URI . '/v1/history.json');
 
         if(!is_null($limit)) {
             if((int)$limit < 1 || (int)$limit > 250) {
@@ -300,13 +306,39 @@ class Phoursquare_Request
      public function fetchUrl($uri, array $parameters = array())
      {
         $client = $this->getClient();
-        $client->setUri(self::API_URI . $uri);
+        $client->setUri(self::FS_API_URI . $uri);
 
         foreach($parameters as $name => $value) {
             $client->setParameterGet($name, $value);
         }
 
         return $this->_fetch($client, array_merge(array($uri), $parameters));
+     }
+
+     /**
+      *
+      * @param array $parts
+      * @return Phoursquare_GeoLocation 
+      */
+     public function resolveAddress(array $parts)
+     {
+        if(empty($parts)) {
+            throw new InvalidArgumentException('Address parts can not be empty!');
+        }
+ 
+        $client = $this->getClient();
+        $client->setUri(self::GM_API_URI . '/geocode/json');
+        $client->setParameterGet('address', implode(', ', $parts));
+        $client->setParameterGet('sensor', 'false');
+
+        try {
+            $data = $this->_fetch($client, $parts);
+        } catch (Exception $e) {
+            throw new Exception('Google GeoCoder threw an Exception, ' .
+                                'unable to return a valid GeoLocation');
+        }
+
+        return $data;
      }
 
 

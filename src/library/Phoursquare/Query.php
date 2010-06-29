@@ -68,19 +68,37 @@ class Phoursquare_Query implements IteratorAggregate
      *
      * @var const
      */
-    const PERSON_NAME = 'name';
+    const NON_FRIEND_NAME = 'non-friend-name';
 
     /**
      *
      * @var const
      */
-    const PERSON_PHONE = 'phone';
+    const NON_FRIEND_PHONE= 'non-friend-phone';
 
     /**
      *
      * @var const
      */
-    const PERSON_TWITTER = 'twitter';
+    const NON_FRIEND_TWITTER = 'non-friend-twitter';
+
+    /**
+     *
+     * @var const
+     */
+    const FRIEND_NAME = 'friend-name';
+
+    /**
+     *
+     * @var const
+     */
+    const FRIEND_PHONE= 'friend-phone';
+
+    /**
+     *
+     * @var const
+     */
+    const FRIEND_TWITTER = 'friend-twitter';
 
     /**
      *
@@ -89,9 +107,12 @@ class Phoursquare_Query implements IteratorAggregate
     protected $_types = array(
         self::VENUE,
         self::TIP,
-        self::PERSON_NAME,
-        self::PERSON_PHONE,
-        self::PERSON_TWITTER
+        self::FRIEND_NAME,
+        self::FRIEND_PHONE,
+        self::FRIEND_TWITTER,
+        self::NON_FRIEND_NAME,
+        self::NON_FRIEND_PHONE,
+        self::NON_FRIEND_TWITTER
     );
 
     /**
@@ -99,11 +120,14 @@ class Phoursquare_Query implements IteratorAggregate
      * @var array
      */
     protected $_uris = array(
-        self::VENUE             => '/v1/venues.json',
-        self::TIP               => '/v1/tips.json',
-        self::PERSON_NAME       => '/v1/findfriends/byname.json',
-        self::PERSON_PHONE      => '/v1/findfriends/byphone.json',
-        self::PERSON_TWITTER    => '/v1/findfriends/bytwitter.json'
+        self::VENUE                 => '/v1/venues.json',
+        self::TIP                   => '/v1/tips.json',
+        self::NON_FRIEND_NAME       => '/v1/findfriends/byname.json',
+        self::NON_FRIEND_PHONE      => '/v1/findfriends/byphone.json',
+        self::NON_FRIEND_TWITTER    => '/v1/findfriends/bytwitter.json',
+        self::FRIEND_NAME       => null,
+        self::FRIEND_PHONE      => null,
+        self::FRIEND_TWITTER    => null
     );
 
     /**
@@ -153,6 +177,12 @@ class Phoursquare_Query implements IteratorAggregate
      * @var boolean
      */
     protected $_nearby = true;
+
+    /**
+     *
+     * @var array
+     */
+    protected $_address = array();
 
     /**
      *
@@ -217,7 +247,6 @@ class Phoursquare_Query implements IteratorAggregate
      */
     public function limit($limit)
     {
-        $this->_onlyTipAndVenue();
         $this->_limit = (int) $limit;
         return $this;
     }
@@ -231,7 +260,7 @@ class Phoursquare_Query implements IteratorAggregate
         if($this->_type !== self::VENUE &&
            $this->_type !== self::TIP
         ) {
-            throw new Exception('Setting a limit is only supported when ' .
+            throw new Exception('Setting is only supported when ' .
                                 'searching for venues or tips');
         }
     }
@@ -243,7 +272,7 @@ class Phoursquare_Query implements IteratorAggregate
      */
     public function keyword($term)
     {
-        $this->_term = $term;
+        $this->_term = strtolower($term);
         return $this;
     }
 
@@ -312,6 +341,39 @@ class Phoursquare_Query implements IteratorAggregate
 
     /**
      *
+     * @return integer
+     */
+    public function getLimit()
+    {
+        return (int)$this->_limit;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getKeyword()
+    {
+        return (string)$this->_term;
+    }
+
+    /**
+     *
+     * @param boolean $me
+     * @return Phoursquare_Query
+     */
+    public function address($address = array())
+    {
+        if(is_string($address)) {
+            $address = array($address);
+        }
+
+        $this->_address = $address;
+        return $this;
+    }
+
+    /**
+     *
      * @return Phoursquare_AbstractResultSet
      */
     public function getIterator()
@@ -335,9 +397,15 @@ class Phoursquare_Query implements IteratorAggregate
     {
         $parameters = array();
 
+        if($this->getType() == self::VENUE ||
+           $this->getType() == self::TIP
+        ) {
         if(!is_null($this->_limit)) {
             $parameters['l'] = $this->_limit;
         }
+        }
+
+
         if(!is_null($this->_term)) {
             $parameters['q'] = $this->_term;
         }
@@ -375,20 +443,32 @@ class Phoursquare_Query implements IteratorAggregate
 
     /**
      *
+     * @param  Phoursquare_Search $search
      * @return Phoursquare_Query
      */
-    public function validate()
+    public function validate(Phoursquare_Search $search)
     {
         switch($this->_type) {
 
             case self::VENUE:
             case self::TIP:
 
+                if(!empty($this->_address)) {
+                    $addresses = $search->getService()
+                                        ->geocode($this->_address);
+
+                    $address = array_shift($addresses);
+
+                    $this->_geolat  = $address->getLatitude();
+                    $this->_geolong = $address->getLongitude();
+                }
+
                 if(is_null($this->_geolat)  || empty($this->_geolat) ||
                    is_null($this->_geolong) || empty($this->_geolong)
                 ) {
                     throw new Exception('Geolat & Geolong are required!');
                 }
+
 
             break;
         }

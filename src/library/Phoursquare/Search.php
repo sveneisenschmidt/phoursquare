@@ -39,6 +39,7 @@
  * @uses Phourquare_Query
  * @uses Phourquare_Search_VenueList
  * @uses Phourquare_Search_TipsList
+ * @uses Phourquare_Search_NonFriendsList
  */
 
 require_once 'Phoursquare/Service.php';
@@ -134,30 +135,79 @@ class Phoursquare_Search
 
     /**
      *
+     * @return Phoursquare_Query
+     */
+    public function nonFriendByName()
+    {
+        return $this->query(Phoursquare_Query::NON_FRIEND_NAME);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Query
+     */
+    public function nonFriendByPhone()
+    {
+        return $this->query(Phoursquare_Query::NON_FRIEND_PHONE);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Query
+     */
+    public function nonFriendByTwitter()
+    {
+        return $this->query(Phoursquare_Query::NON_FRIEND_TWITTER);
+    }
+
+    /**
+     *
      * @param Phoursquare_Query $query
      * @return Phoursquare_AbstractResultSet
      */
     public function find(Phoursquare_Query $query)
     {
         $query->detach();
-        $query->validate();
+        $query->validate($this);
         
-        $data = $this->getService()
-                     ->getRequest()
-                     ->fetchUrl(
-                         $query->getUri(),
-                         $query->getParameters()
-                     );
+
 
         switch ($query->getType()) {
 
             case Phoursquare_Query::VENUE:
-                return $this->_assembleVenues($data, $query);
+            case Phoursquare_Query::TIP:
+            case Phoursquare_Query::NON_FRIEND_NAME:
+            case Phoursquare_Query::NON_FRIEND_PHONE:
+            case Phoursquare_Query::NON_FRIEND_TWITTER:
+
+                $data = $this->getService()
+                             ->getRequest()
+                             ->fetchUrl(
+                                 $query->getUri(),
+                                 $query->getParameters()
+                             );
+
+                case Phoursquare_Query::VENUE:
+                    return $this->_assembleVenues($data, $query);
+                break;
+
+                case Phoursquare_Query::TIP:
+                    return $this->_assembleTips($data, $query);
+                break;
+
+                case Phoursquare_Query::NON_FRIEND_NAME:
+                case Phoursquare_Query::NON_FRIEND_PHONE:
+                case Phoursquare_Query::NON_FRIEND_TWITTER:
+                    return $this->_assembleNonFriends($data, $query);
+                break;
             break;
 
-            case Phoursquare_Query::TIP:
-                return $this->_assembleTips($data, $query);
+            case Phoursquare_Query::FRIEND_NAME:
+            case Phoursquare_Query::FRIEND_PHONE:
+            case Phoursquare_Query::FRIEND_TWITTER:
+                 return $this->_assembleFriends($query);
             break;
+
         }
 
         throw new Exception('Not yet implemented type: ' . $query->getType());
@@ -166,6 +216,7 @@ class Phoursquare_Search
     /**
      *
      * @param stdClass $data
+     * @param Phoursquare_Query $query
      * @return Phoursquare_Search_VenueList
      */
     protected function _assembleVenues(stdClass $data, Phoursquare_Query $query)
@@ -193,6 +244,7 @@ class Phoursquare_Search
     /**
      *
      * @param stdClass $data
+     * @param Phoursquare_Query $query
      * @return Phoursquare_Search_TipsList
      */
     protected function _assembleTips(stdClass $data, Phoursquare_Query $query)
@@ -215,6 +267,71 @@ class Phoursquare_Search
         return new Phoursquare_Search_TipsList(
             $data->groups[$key]->tips, $this->getService(), null
         );
+    }
+
+    /**
+     *
+     * @param stdClass $data
+     * @param Phoursquare_Query $query
+     * @return Phoursquare_Search_NonFriendsList
+     */
+    protected function _assembleNonFriends(stdClass $data, Phoursquare_Query $query)
+    {
+        if(!property_exists($data, 'users')) {
+            throw new Exception('Invalid response structure');
+        }
+
+        require_once 'Phoursquare/Search/NonFriendsList.php';
+        $iterator = new Phoursquare_Search_NonFriendsList(
+            $data->users, $this->getService()
+        );
+        if(!is_null($query->getLimit())) {
+            $iterator->shorten($query->getLimit());
+        }
+        return $iterator;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Query $query
+     * @return Phoursquare_UsersList
+     */
+    protected function _assembleFriends(Phoursquare_Query $query)
+    {
+        $friends = $this->getService()
+                        ->getAuthenticatedUser()
+                        ->getFriends();
+
+        if(!is_null($query->getLimit())) {
+            $friends->shorten($query->getLimit());
+        }
+
+        if(is_null($query->getKeyword()) ||
+           trim($query->getKeyword()) == ''
+        ) {
+            return $friends;
+        }
+
+
+        // filtering
+
+        foreach($friends as $key => $friend) {
+
+            switch ($query->getType()) {
+
+                case Phoursquare_Query::FRIEND_NAME:
+                    $name = strtolower(' ' . $friend->getFirstname() . 
+                                       ' ' . $friend->getLastname());
+
+                    if(strpos($name, $query->getKeyword()) === false) {
+                       
+                    }
+                break;
+
+            }
+
+        }
+        return $friends;
     }
 
     /**
