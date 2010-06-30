@@ -26,7 +26,6 @@ Currently in Read-only-mode.
 
 **ToDo:**
 
-* Able to Check-in somewhere
 * Implement Badges on Checkins
 * Add Tips
 * Mark Tips as done
