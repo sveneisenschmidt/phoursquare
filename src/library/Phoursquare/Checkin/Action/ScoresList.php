@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category User
+ * @category ResultSet
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,65 +35,93 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_User_AbstractAdvancedUser
+ * @uses Phoursquare_AbstractResultSet
+ * @uses Phoursquare_Checkin_Action_Score
  */
 
-require_once 'Phoursquare/User/AbstractAdvancedUser.php';
+require_once 'Phoursquare/AbstractResultSet.php';
+require_once 'Phoursquare/Checkin/Action/Score.php';
 
 /**
- * Phoursquare_User_AuthenticatedUser
+ * Phoursquare_Checkin_Action_ScoresList
  *
- * @category User
+ * @category ResultSet
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_User_AuthenticatedUser extends Phoursquare_User_AbstractAdvancedUser
+class Phoursquare_Checkin_Action_ScoresList extends Phoursquare_AbstractResultSet
 {
+    /**
+     *
+     * @var Phoursquare_Checkin_Action
+     */
+    protected $_checkin;
 
     /**
      *
-     * @param stdClass $data
+     * @param array $data
+     * @param Phoursquare_Service $service
+     * @param Phoursquare_Checkin_Action $checkin
      */
-    public function __construct(stdClass $data, Phoursquare_Service $service)
+    public function __construct(
+        array $data,
+        Phoursquare_Service $service,
+        Phoursquare_Checkin_Action $checkin
+    )
     {
         parent::__construct($data, $service);
+        $this->_checkin = $checkin;
     }
 
     /**
      *
-     * @param integer $limit
-     * @param integer $sinceId
-     * @return Phoursquare_CheckinList
+     * @return Phoursquare_Checkin_Action_Score
      */
-    public function getCheckins($limit = 25, $sinceId = null)
+    protected function _parse($key)
     {
-        return $this->getService()
-                    ->getAuthenticatedUserCheckins($limit);
+        return new Phoursquare_Checkin_Action_Score(
+            $this->_data[$key],
+            $this->getService(),
+            $this->getCheckin()
+        );
     }
 
     /**
      *
-     * @return Phoursquare_CheckinList
+     * @return Phoursquare_Checkin_Action_Score
      */
-    public function getLastCheckin()
+    public function  current()
     {
-        return $this->getService()
-                    ->getAuthenticatedUserCheckins(1)
-                    ->getFirstInList();
+        return parent::current();
     }
 
     /**
      *
-     * @param integer|Phoursquare_Venue
-     * @param array $options
-     * @return Phoursquare_Checkin
+     * @return Phoursquare_Checkin_Action_Score
      */
-    public function checkin($venue, array $options = array())
+    public function getFirstInList()
     {
-        return $this->getService()
-                    ->doCheckin($venue, $options);
+        return parent::getFirstInList();
+    }
+
+    /**
+     *
+     * @return Phoursquare_Checkin_Action_Score
+     */
+    public function getLastInList()
+    {
+        return parent::getLastInList();
+    }
+
+    /**
+     *
+     * @return Phoursquare_Checkin_Action
+     */
+    public function getCheckin()
+    {
+        return $this->_checkin;
     }
 }

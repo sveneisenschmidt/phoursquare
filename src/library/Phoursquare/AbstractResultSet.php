@@ -160,7 +160,7 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
         }
         
         $id = $this->_data[$this->_key];
-        if(!is_int($id) && !is_numeric($id)) {
+        if(!is_int($id) && !is_numeric($id) && property_exists($id, 'id')) {
             $id = $id->id;
         }
 

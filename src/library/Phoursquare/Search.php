@@ -311,10 +311,6 @@ class Phoursquare_Search
                         ->getAuthenticatedUser()
                         ->getFriends();
 
-        if(!is_null($query->getLimit())) {
-            $friends->shorten($query->getLimit());
-        }
-
         if(is_null($query->getKeyword()) ||
            trim($query->getKeyword()) == ''
         ) {
@@ -337,8 +333,38 @@ class Phoursquare_Search
                     }
                 break;
 
-            }
+                case Phoursquare_Query::FRIEND_PHONE:
+                    $phone = trim($query->getKeyword());
+                    $phone = ltrim($phone, '0');
+                    $phone = str_replace(array('/', ',', '-', '.'), '', $phone);
+                    
+                    if($phone != $friend->getPhone() ||
+                       is_null($friend->getPhone())
+                    ) {
+                        $friends->remove($key);
+                    }
+                break;
 
+                case Phoursquare_Query::FRIEND_TWITTER:
+                    $nick = trim($query->getKeyword());
+                    $nick = ltrim($nick, '@');
+
+                    if(!$friend->hasTwitter() ||
+                       $nick != $friend->getTwitter()
+                    ) {
+                        $friends->remove($key);
+                    }
+
+                break;
+
+                default:
+                    return array();
+
+            }
+        }
+
+        if(!is_null($query->getLimit())) {
+            $friends->shorten($query->getLimit());
         }
         
         return $friends->rebase()

@@ -60,6 +60,18 @@ class Phoursquare_Request
      *
      * @var const
      */
+    const CACHE_TAG_AUTHENTICATED_USER = 'authenticated-user';
+    
+    /**
+     *
+     * @var const
+     */
+    const CACHE_TAG_USER_HISTORY = 'history-user';
+
+    /**
+     *
+     * @var const
+     */
     const FS_API_URI    = 'http://api.foursquare.com';
 
     /**
@@ -141,6 +153,8 @@ class Phoursquare_Request
         
         if($cache instanceof Phoursquare_Cache_AbstractCache) {
             $this->_cache = $cache;
+            $this->_cache->setEnableTags(true);
+            $this->_cache->setManageIds(true);
             return $this;
         }
 
@@ -187,8 +201,10 @@ class Phoursquare_Request
      {
         $client = $this->getClient();
         $client->setUri(self::FS_API_URI . '/v1/user.json');
-        if(!is_null($uid)) {
+        if(!is_null($uid) || trim($uid) != "") {
             $client->setParameterGet('uid', (string) $uid);
+        } else {
+            $uid = self::CACHE_TAG_AUTHENTICATED_USER;
         }
 
         return $this->_fetch($client, array($uid, $hash));
@@ -246,6 +262,7 @@ class Phoursquare_Request
      {
         $client = $this->getClient();
         $client->setUri(self::FS_API_URI . '/v1/history.json');
+        $history = self::CACHE_TAG_USER_HISTORY;
 
         if(!is_null($limit)) {
             if((int)$limit < 1 || (int)$limit > 250) {
@@ -259,42 +276,6 @@ class Phoursquare_Request
         }
 
         return $this->_fetch($client, array($limit, $sinceId));
-     }
-
-     /**
-      *
-      * @param Zend_Http_Client $client
-      * @return stdClass
-      */
-     protected function _fetch(Zend_Http_Client $client, array $ids = array())
-     {
-        if($this->hasCache() && $cache = $this->getCache()) {
-            $ids[] = $client->getUri(true);
-            $hash  = sha1(implode('', $ids));
-
-            if($cache->contains($hash)) {
-                $client->resetParameters(true);
-                return Phoursquare_Response::decode(
-                    $cache->fetch($hash)
-                );
-            }
-        }
-
-        $response = new Phoursquare_Response(
-            $client->request()
-        );
-
-        if(!$response->isSuccessful()) {
-            throw new Exception($response->getErrorMessage());
-        }
-
-        $client->resetParameters(true);
-        if($this->hasCache()) {
-            $cache->save($hash, $response->getResponseBody());
-        }
-        return Phoursquare_Response::decode(
-            $response->getResponseBody()
-        );
      }
      
      /**
@@ -341,6 +322,88 @@ class Phoursquare_Request
         return $data;
      }
 
+     /**
+      *
+      * @param integer $venueId
+      * @param array $options Options are shout, private, twitter, facebook
+      * @return stdClass
+      */
+     public function sendCheckin($venueId, array $options = array())
+     {
+        if(!is_int($venueId)) {
+            throw new InvalidArgumentException('Given-in $venueId is no integer!');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/checkin.json');
+
+
+        $client->setParameterPost('vid', (string)$venueId);
+
+        if(array_key_exists('shout', $options)) {
+            $client->setParameterPost('shout', (string)$options['shout']);
+        }
+
+        if(array_key_exists('twitter', $options)) {
+            $client->setParameterPost('twitter', (bool)$options['twitter']);
+        }
+
+        if(array_key_exists('facebook', $options)) {
+            $client->setParameterPost('facebook', (bool)$options['facebook']);
+        }
+
+        if(array_key_exists('private', $options)) {
+            $client->setParameterPost('private', (bool)$options['private']);
+        }
+
+        $this->getCache()->deleteAllByTag(array(
+            self::CACHE_TAG_AUTHENTICATED_USER,
+            self::CACHE_TAG_USER_HISTORY,
+            $venueId
+        ));
+
+        return $this->_fetch($client, $options);
+     }
+
+     /**
+      *
+      * @param Zend_Http_Client $client
+      * @param array $client
+      * @param boolean $client
+      * @return stdClass
+      */
+     protected function _fetch(Zend_Http_Client $client, array $ids = array(), $useCache = true)
+     {
+        if($useCache && $this->hasCache() && $cache = $this->getCache()) {
+            $ids[] = $client->getUri(true);
+            $hash  = sha1(implode('', $ids));
+
+            if($cache->contains($hash)) {
+                $client->resetParameters(true);
+                return Phoursquare_Response::decode(
+                    $cache->fetch($hash)
+                );
+            }
+        }
+
+        $response = new Phoursquare_Response(
+            $client->request()
+        );
+
+        if(!$response->isSuccessful()) {
+            throw new Exception($response->getErrorMessage());
+        }
+
+        $client->resetParameters(true);
+        if($useCache && $this->hasCache()) {
+            $cache->save($hash, $response->getResponseBody(), false, $ids);
+        }
+        return Phoursquare_Response::decode(
+            $response->getResponseBody()
+        );
+     }
+
 
      /**
       *
@@ -379,6 +442,9 @@ class Phoursquare_Request
                 );
             }
         }
+        $this->_client->setMethod(
+                Zend_Http_Client::GET
+        );
         return $this->_client;
      }
      

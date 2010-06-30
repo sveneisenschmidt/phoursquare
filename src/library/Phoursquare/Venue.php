@@ -392,5 +392,15 @@ class Phoursquare_Venue
                             'Foursquare API seems to missing thi spart');
     }
 
+    /**
+     *
+     * @param array $options
+     * @return Phoursquare_Checkin
+     */
+    public function checkinHere(array $options = array())
+    {
+        return $this->getService()
+                    ->doCheckin($this->getId(), $options);
+    }
 
 }

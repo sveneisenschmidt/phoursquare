@@ -20,10 +20,14 @@ Currently in Read-only-mode.
 * Search for Tips  (from you or veryone nearby)
 * Search for Users (only non friends) by Name, Phone or Twitter Nickname
 * Search for Friends by Name, Phone or Twitter Nickname
+* Checkin at any Venue :) - finally!
+  (clears the user object cache and history to have the checkin immediately in your history)
+* Retrieve the score of any Checkin
 
 **ToDo:**
 
 * Able to Check-in somewhere
+* Implement Badges on Checkins
 * Add Tips
 * Mark Tips as done
 * ... some more I forgot ;)
@@ -272,6 +276,11 @@ foundAddresses is a collection of GeoLocation Objects with these following metho
     //       stay in relation to a Checkin
     $venue = $service->getVenue($venueId = 666);
 
+    // check-in into this venue
+    $venue->checkinHere(array(
+        'shout' => 'Whoohoo, my first checkin!',
+        'twitter' => true
+    ));
 
 **Venue Statistics:**
 
@@ -393,6 +402,7 @@ foundAddresses is a collection of GeoLocation Objects with these following metho
 * getGeoLongitude
 * getStatistics
 * getTips
+* checkinHere
 
 
 **Avaliable Methods for Venue Statistics:**

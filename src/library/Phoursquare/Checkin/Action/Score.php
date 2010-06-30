@@ -27,73 +27,117 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category User
+ * @category ResultSet
  * @package Phoursquare
  *
  * @license MIT-Style License
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
- *
- * @uses Phoursquare_User_AbstractAdvancedUser
+ * 
  */
-
-require_once 'Phoursquare/User/AbstractAdvancedUser.php';
 
 /**
- * Phoursquare_User_AuthenticatedUser
+ * Phoursquare_Checkin_Action_ScoresList
  *
- * @category User
+ * @category ResultSet
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_User_AuthenticatedUser extends Phoursquare_User_AbstractAdvancedUser
+class Phoursquare_Checkin_Action_Score
 {
+    /**
+     *
+     * @var integer
+     */
+    protected $_points = 0;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_message;
+
+    /**
+     *
+     * @var string
+     */
+    protected $_icon;
 
     /**
      *
      * @param stdClass $data
+     * @param Phoursquare_Service $service
+     * @param Phoursquare_Checkin $checkin
+     * @param
      */
-    public function __construct(stdClass $data, Phoursquare_Service $service)
+    public function __construct(
+        stdClass $data,
+        Phoursquare_Service $service,
+        Phoursquare_Checkin $checkin)
     {
-        parent::__construct($data, $service);
+        $this->_checkin  = $checkin;
+        $this->_service  = $service;
+
+        if(property_exists($data, 'points')) {
+            $this->_points = (int)$data->points;
+        }
+
+        if(property_exists($data, 'message')) {
+            $this->_message = $data->message;
+        }
+
+        if(property_exists($data, 'icon')) {
+            $this->_icon = $data->icon;
+        }
     }
 
     /**
      *
-     * @param integer $limit
-     * @param integer $sinceId
-     * @return Phoursquare_CheckinList
+     * @return Phoursquare_Checkin_Action
      */
-    public function getCheckins($limit = 25, $sinceId = null)
+    public function getCheckin()
     {
-        return $this->getService()
-                    ->getAuthenticatedUserCheckins($limit);
+        return $this->_checkin;
     }
 
     /**
      *
-     * @return Phoursquare_CheckinList
+     * @return Phoursquare_User_AbstractUser
      */
-    public function getLastCheckin()
+    public function getUser()
     {
-        return $this->getService()
-                    ->getAuthenticatedUserCheckins(1)
-                    ->getFirstInList();
+        return $this->getCheckin()
+                    ->getUser();
     }
 
     /**
      *
-     * @param integer|Phoursquare_Venue
-     * @param array $options
-     * @return Phoursquare_Checkin
+     * @return integer
      */
-    public function checkin($venue, array $options = array())
+    public function getPoints()
     {
-        return $this->getService()
-                    ->doCheckin($venue, $options);
+        return $this->_points;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->_message;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getIconUrl()
+    {
+        return $this->_icon;
     }
 }

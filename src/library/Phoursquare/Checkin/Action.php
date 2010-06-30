@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category User
+ * @category Checkin
  * @package Phoursquare
  *
  * @license MIT-Style License
@@ -35,65 +35,88 @@
  * @copyright 2010, Sven Eisenschmidt
  * @link www.unsicherheitsagent.de
  *
- * @uses Phoursquare_User_AbstractAdvancedUser
+ * @uses Phoursquare_Venue
+ * @uses Phoursquare_Checkin
+ * @uses Phoursquare_Checkin_Action_ScoresList
+ * @uses Phoursquare_User_AbstractUser
  */
 
-require_once 'Phoursquare/User/AbstractAdvancedUser.php';
+require_once 'Phoursquare/Checkin.php';
 
 /**
- * Phoursquare_User_AuthenticatedUser
+ * Phoursquare_Checkin_Action
  *
- * @category User
+ * @category Checkin
  * @package Phoursquare
  * @author Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
  * @copyright 2010, Sven Eisenschmidt
  * @license MIT-Style License
  * @link www.unsicherheitsagent.de
  */
-class Phoursquare_User_AuthenticatedUser extends Phoursquare_User_AbstractAdvancedUser
+class Phoursquare_Checkin_Action extends Phoursquare_Checkin
 {
+    /**
+     *
+     * @var array|Phoursquare_Checkin_Action_ScoresList
+     */
+    protected $_scores;
 
     /**
      *
      * @param stdClass $data
+     * @param Phoursquare_User_AbstractUser $user
      */
-    public function __construct(stdClass $data, Phoursquare_Service $service)
+    public function __construct(stdClass $data, Phoursquare_User_AbstractUser $user)
     {
-        parent::__construct($data, $service);
+        parent::__construct($data, $user);
+
+        if(property_exists($data, 'scores')) {
+            $this->_scores = $data->scores;
+        }
+    }
+    /**
+     *
+     * @return boolean
+     */
+    public function hasScores()
+    {
+        return !is_null($this->_scores);
     }
 
     /**
      *
-     * @param integer $limit
-     * @param integer $sinceId
-     * @return Phoursquare_CheckinList
+     * @return Phoursquare_Checkin_Action_ScoresList
      */
-    public function getCheckins($limit = 25, $sinceId = null)
+    public function getScores()
     {
-        return $this->getService()
-                    ->getAuthenticatedUserCheckins($limit);
+        if(!$this->hasScores()) {
+            return null;
+        }
+
+        if(!($this->_scores instanceof Phoursquare_Checkin_Action_ScoresList)) {
+            require_once 'Phoursquare/Checkin/Action/ScoresList.php';
+            $this->_scores = new Phoursquare_Checkin_Action_ScoresList(
+                $this->_scores,
+                $this->getService(),
+                $this
+            );
+        }
+
+        return $this->_scores;
     }
 
     /**
      *
-     * @return Phoursquare_CheckinList
+     * @return integer
      */
-    public function getLastCheckin()
+    public function getScorePoints()
     {
-        return $this->getService()
-                    ->getAuthenticatedUserCheckins(1)
-                    ->getFirstInList();
-    }
+        $points = 0;
 
-    /**
-     *
-     * @param integer|Phoursquare_Venue
-     * @param array $options
-     * @return Phoursquare_Checkin
-     */
-    public function checkin($venue, array $options = array())
-    {
-        return $this->getService()
-                    ->doCheckin($venue, $options);
+        foreach($this->getScores() as $score) {
+            $points += $score->getPoints();
+        }
+
+        return $points;
     }
 }

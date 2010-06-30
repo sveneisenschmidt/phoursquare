@@ -275,7 +275,7 @@ abstract class Phoursquare_Service
     protected function _getUser($uid = null, $hash = null)
     {
         $data = $this->getRequest()
-                     ->fetchUser((string)$uid, $hash);
+                     ->fetchUser($uid, $hash);
 
         return $this->parseUser($data);
     }
@@ -374,4 +374,42 @@ abstract class Phoursquare_Service
     {
         return $this->getSearch();
     }
+
+    /**
+     *
+     * @param integer|Phoursquare_Venue
+     * @param array $options
+     * @return Phoursquare_Checkin
+     */
+    public function doCheckin($venue, array $options = array())
+    {
+        if(!is_int($venue) &&
+           !is_numeric($venue) &&
+           !is_object($venue) &&
+           !($venue instanceof Phoursquare_Venue)
+        ) {
+            throw new InvalidArgumentException('$venue is no valid Vanue id or ' .
+                                               'or instanc eof Phoursquare_Venue');
+        }
+
+        if(!is_int($venue) &&
+           !is_numeric($venue)
+        ) {
+            $venue = $venue->getId();
+        }
+
+        $data = $this->getRequest()
+                     ->sendCheckin((int)$venue, $options);
+
+        if(!property_exists($data, 'checkin')) {
+            throw new Exception('No valid checkin response returned.');
+        }
+
+        require_once 'Phoursquare/Checkin/Action.php';
+        return new Phoursquare_Checkin_Action(
+            $data->checkin,
+            $this->getAuthenticatedUser()
+        );
+    }
+
 }

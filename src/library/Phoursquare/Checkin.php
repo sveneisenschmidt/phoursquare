@@ -121,6 +121,7 @@ class Phoursquare_Checkin
         }
 
         if(property_exists($data, 'shout')) {
+            $this->_shout = $data->venue->shout;
             
         }
     }
@@ -168,6 +169,16 @@ class Phoursquare_Checkin
     public function getUser()
     {
         return $this->_user;
+    }
+
+    /**
+     *
+     * @return Phoursquare_Service
+     */
+    public function getService()
+    {
+        return $this->getUser()
+                    ->getService();
     }
 
     /**
