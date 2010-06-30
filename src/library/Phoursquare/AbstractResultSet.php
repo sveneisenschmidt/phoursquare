@@ -110,6 +110,14 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
             return count($this->_data);
         }
 
+        $filtered = count($this->_filteredIds);
+        $existing = count($this->_data);
+
+        if($existing - $filtered < 0) {
+            return 0;
+        }
+
+        return $existing - $filtered;
     }
 
     /**
@@ -128,6 +136,7 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
     public function next()
     {
         $this->_key++;
+        return $this;
     }
 
     /**
@@ -137,6 +146,7 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
     public function rewind()
     {
         $this->_key = 0;
+        return $this;
     }
 
     /**
@@ -228,6 +238,33 @@ abstract class Phoursquare_AbstractResultSet implements Countable, Iterator
         }
 
         $this->_data = array_slice($this->_data, 0, (int)$length);
+        return $this;
+    }
+
+    /**
+     *
+     * $param integer $key
+     * @return Phoursquare_AbstractResultSet
+     */
+    public function remove($key)
+    {
+        if(!isset($this->_data[$key])) {
+            return $this;
+        }
+
+        unset($this->_data[$key]);
+        
+        return $this;
+    }
+
+    /**
+     *
+     * @return Phoursquare_AbstractResultSet
+     */
+    public function rebase()
+    {
+        $this->_data = array_values($this->_data);
+
         return $this;
     }
 

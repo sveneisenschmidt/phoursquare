@@ -146,6 +146,15 @@ class Phoursquare_Search
      *
      * @return Phoursquare_Query
      */
+    public function friendByName()
+    {
+        return $this->query(Phoursquare_Query::FRIEND_NAME);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Query
+     */
     public function nonFriendByPhone()
     {
         return $this->query(Phoursquare_Query::NON_FRIEND_PHONE);
@@ -324,14 +333,16 @@ class Phoursquare_Search
                                        ' ' . $friend->getLastname());
 
                     if(strpos($name, $query->getKeyword()) === false) {
-                       
+                        $friends->remove($key);
                     }
                 break;
 
             }
 
         }
-        return $friends;
+        
+        return $friends->rebase()
+                       ->rewind();
     }
 
     /**

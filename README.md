@@ -19,10 +19,13 @@ Currently in Read-only-mode.
 * Search for Venues (from you or veryone nearby)
 * Search for Tips  (from you or veryone nearby)
 * Search for Users (only non friends) by Name, Phone or Twitter Nickname
+* Search for Friends by Name, Phone or Twitter Nickname
 
 **ToDo:**
 
 * Able to Check-in somewhere
+* Add Tips
+* Mark Tips as done
 * ... some more I forgot ;)
 
 ## Basic Usage
@@ -118,10 +121,23 @@ when you iterate "over" it.
 
     }
 
+Search for Friends/NonFriends
+
+    $results = $service->search()
+                       ->query(Phoursquare_Query::FRIEND_NAME)
+                       ->limit(50)
+                       ->keyword('sven');
+
+
 Shortcut methods
 
 * use ::venue() instead of ::query(Phoursquare_Query::VENUE)
 * use ::tip() instead of ::query(Phoursquare_Query::TIP)
+* use ::friendByName() instead of ::query(Phoursquare_Query::FRIEND_NAME)
+* use ::nonFriendByName() instead of ::query(Phoursquare_Query::NON_FRIEND_NAME)
+* use ::nonFriendByPhone() instead of ::query(Phoursquare_Query::NON_FRIEND_PHONE)
+* use ::nonFriendByTwitter() instead of ::query(Phoursquare_Query::NON_FRIEND_TWITTER)
+
 
 Instead of using ::geolat() and ::geolong() you can set an address via:
 
@@ -137,7 +153,9 @@ The correspondending geo location will be retrieved via Google Maps Location API
 Beware, the Request will fail and maybe throw an Exception when no correct addrress(es)
 could be found.
 
-**GeoLocation retrieval**
+
+
+**GeoLocation retrieval:**
 
     // expect $service is a fully initialized instance of Phoursquare
     $foundAddresses = $service->geocode(array(
