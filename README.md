@@ -1,9 +1,5 @@
 # phoursquare
 
-**Status:**
-
-Currently in Read-only-mode.
-
 **Done:**
 
 * User retrieval
