@@ -315,11 +315,26 @@ class Phoursquare_Venue
         if(!($this->_tips instanceof Phoursquare_Venue_TipsList)) {
             require_once 'Phoursquare/Venue/TipsList.php';
             $this->_tips = new  Phoursquare_Venue_TipsList(
-                $this->_tips, $this, $this->getService()
+                $this->_tips, $this->getService(), $this
             );
         }
 
         return $this->_tips;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Venue_Tip $tip
+     * @return Phoursquare_Venue_Tip
+     */
+    public function addTip(Phoursquare_Venue_Tip $tip)
+    {
+        if(!is_null($tip->getId())) {
+            throw new Exception('$tip does already exist!');
+        }
+
+        return $this->getService()
+                    ->addTip($tip, $this);
     }
 
     /**
@@ -401,6 +416,87 @@ class Phoursquare_Venue
     {
         return $this->getService()
                     ->doCheckin($this->getId(), $options);
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasStats()
+    {
+        return !is_null($this->_stats);
+    }
+
+    /**
+     *
+     * @return Phoursquare_Venue_Stats
+     */
+    public function getStats()
+    {
+        if(!$this->hasStats()) {
+            return null;
+        }
+
+        if(!($this->_stats instanceof Phoursquare_Venue_Stats)) {
+            require_once 'Phoursquare/Venue/Stats.php';
+            $this->_stats = new Phoursquare_Venue_Stats(
+                $this->_stats,
+                $this,
+                $this->getService()
+            );
+        }
+
+        return $this->_stats;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function hasMayor()
+    {
+        return $this->getStats()
+                    ->hasMayor();
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function getMayor()
+    {
+        return $this->getStats()
+                    ->getMayor();
+    }
+
+    /**
+     *
+     * @todo implementation
+     * @return boolean
+     */
+    public function flagAsMislocated()
+    {
+        
+    }
+
+    /**
+     *
+     * @todo implementation
+     * @return boolean
+     */
+    public function flagAsDuplicated()
+    {
+
+    }
+    
+    /**
+     *
+     * @todo implementation
+     * @return boolean
+     */
+    public function flagAsClosed()
+    {
+
     }
 
 }

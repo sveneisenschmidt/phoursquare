@@ -99,6 +99,12 @@ abstract class Phoursquare_User_AbstractUser
 
     /**
      *
+     * @var string
+     */
+    protected $_friendstatus;
+
+    /**
+     *
      * @param stdClass $data
      */
     public function __construct(stdClass $data, Phoursquare_Service $service)
@@ -112,7 +118,8 @@ abstract class Phoursquare_User_AbstractUser
             'photo',
             'gender',
             'twitter',
-            'facebook'
+            'facebook',
+            'friendstatus'
         ));
     }
 
@@ -238,5 +245,14 @@ abstract class Phoursquare_User_AbstractUser
         return $this->_facebook;
     }
 
+
+    /**
+     *
+     * @return string
+     */
+    public function getFriendstatus()
+    {
+        return $this->_friendstatus;
+    }
 
 }

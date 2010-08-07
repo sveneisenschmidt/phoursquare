@@ -23,12 +23,13 @@ Currently in Read-only-mode.
 * Checkin at any Venue :) - finally!
   (clears the user object cache and history to have the checkin immediately in your history)
 * Retrieve the score of any Checkin
+* Add Tips
+* Mark Tips as done
+* Accept, deny, create Friend Requests
 
 **ToDo:**
 
 * Implement Badges on Checkins
-* Add Tips
-* Mark Tips as done
 * ... some more I forgot ;)
 
 ## Basic Usage

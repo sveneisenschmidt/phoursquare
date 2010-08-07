@@ -72,6 +72,30 @@ class Phoursquare_Venue_Tip
      * @var integer
      */
      protected $_id;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_markAsToDo = false;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_markAsDone = false;
+
+    /**
+     *
+     * @var boolean
+     */
+     protected $_unmark = false;
+
+    /**
+     *
+     * @var Phoursquare_Venue
+     */
+     protected $_venue = null;
     
     /**
      *
@@ -81,15 +105,21 @@ class Phoursquare_Venue_Tip
      * @param
      */
     public function __construct(
-        stdClass $data,
-        Phoursquare_Service $service,
-        $venue)
+        stdClass $data = null,
+        Phoursquare_Service $service  = null,
+        $venue  = null)
     {
-        $this->_venue   = $venue;
-        $this->_service = $service;
 
-        if(!property_exists($data, 'id')) {
-            throw new Exception('Missing \'id\' poperty.');
+        if(is_null($data)) {
+            $data = new stdClass();
+        }
+
+        if(!is_null($venue)) {
+            $this->_venue   = $venue;
+        }
+
+        if(!is_null($service)) {
+            $this->_service   = $service;
         }
 
         if(property_exists($data, 'id')) {
@@ -143,6 +173,16 @@ class Phoursquare_Venue_Tip
 
     /**
      *
+     * @return Phoursquare_Venue_Tip
+     */
+    public function setText($text)
+    {
+        $this->_text = (string)$text;
+        return $this;
+    }
+
+    /**
+     *
      * @return string
      */
     public function getCreated()
@@ -175,6 +215,24 @@ class Phoursquare_Venue_Tip
 
     /**
      *
+     * @return Phoursquare_Venue
+     */
+    public function setRelatedVenue($venue)
+    {
+        if(is_int($this->_venue) || is_numeric($this->_venue)) {
+            $this->_venue = $this->getService()
+                                 ->getVenue($this->_venue);
+        }
+
+        if(is_object($venue) && $venue instanceof Phoursquare_Venue) {
+            $this->_venue = $venue;
+        }
+
+        return $this->_venue;
+    }
+
+    /**
+     *
      * @return Phoursquare_Service
      */
     public function getService()
@@ -189,5 +247,60 @@ class Phoursquare_Venue_Tip
     public function getid()
     {
         return $this->_id;
+    }
+
+    /**
+     *
+     * @todo implementation
+     * @return boolean
+     */
+    public function markAsDone()
+    {
+        if(is_null($this->getId())) {
+            throw new Exception('You can mark as done an unsaved Tip!');
+        }
+
+        return  $this->getService()
+                     ->markAsDone($this);
+    }
+
+    /**
+     *
+     * @todo implementation
+     * @return boolean
+     */
+    public function markAsToDo()
+    {
+        if(!is_null($this->_id)) {
+            return  $this->getService()
+                         ->markTipAsTodo($this);
+        }
+
+        $this->_markAsToDo = true;
+        return true;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function getMarkedAsToDo()
+    {
+        return $this->_markAsToDo;
+    }
+
+    /**
+     *
+     * @todo implementation
+     * @return boolean
+     */
+    public function unMarkToDo()
+    {
+        if(is_null($this->getId())) {
+            throw new Exception('You can unmark an unsaved Tip!');
+        }
+
+        return  $this->getService()
+                     ->unMarkToDo($this);
     }
 }

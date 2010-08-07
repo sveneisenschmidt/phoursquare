@@ -68,6 +68,12 @@ class Phoursquare_Checkin
      *
      * @var string
      */
+    protected $_shout;
+
+    /**
+     *
+     * @var string
+     */
     protected $_created;
 
     /**
@@ -121,8 +127,7 @@ class Phoursquare_Checkin
         }
 
         if(property_exists($data, 'shout')) {
-            $this->_shout = $data->venue->shout;
-            
+            $this->_shout = $data->shout;
         }
     }
 
@@ -133,6 +138,15 @@ class Phoursquare_Checkin
     public function getId()
     {
         return $this->_id;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getShout()
+    {
+        return $this->_shout;
     }
 
     /**

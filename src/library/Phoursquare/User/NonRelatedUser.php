@@ -52,5 +52,33 @@ require_once 'Phoursquare/User/AbstractUser.php';
  */
 class Phoursquare_User_NonRelatedUser extends Phoursquare_User_AbstractUser
 {
-
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function sendFriendRequest()
+    {
+        return $this->getService()
+                    ->sendFriendRequest($this);
+    }
+    
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function approveFriendRequest()
+    {
+        return $this->getService()
+                    ->approveFriendRequest($this);
+    }
+    
+    /**
+     *
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function denyFriendRequest()
+    {
+        return $this->getService()
+                    ->denyFriendRequest($this);
+    }
 }

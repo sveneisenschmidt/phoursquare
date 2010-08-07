@@ -36,6 +36,7 @@
  * @link www.unsicherheitsagent.de
  *
  * @uses Phoursquare_User_AbstractAdvancedUser
+ * @uses Phoursquare_User_PendingRequestsList
  */
 
 require_once 'Phoursquare/User/AbstractAdvancedUser.php';
@@ -95,5 +96,15 @@ class Phoursquare_User_AuthenticatedUser extends Phoursquare_User_AbstractAdvanc
     {
         return $this->getService()
                     ->doCheckin($venue, $options);
+    }
+
+    /**
+     *
+     * @return Phoursquare_User_PendingRequestsList
+     */
+    public function getPendingFriendRequests()
+    {
+        return $this->getService()
+                    ->getPendingFriendRequests();
     }
 }

@@ -39,6 +39,11 @@
  * @uses Phourquare_Search
  * @uses Phoursquare_GeoLocation
  * @uses Phourquare_Cache_AbstractCache
+ * @uses Phourquare_Cache_FriendRequestsList
+ * @uses Phoursquare_User_Friend
+ * @uses Phoursquare_User_AuthenticatedUser
+ * @uses Phoursquare_User_NonRelatedUser
+ * @uses Phoursquare_Venue_Tip
  */
 
 require_once 'Phoursquare/Request.php';
@@ -290,7 +295,7 @@ abstract class Phoursquare_Service
         if(!property_exists($data, 'user')) {
             throw new Exception('No valid user response returned.');
         }
-
+        
         if(property_exists($data->user, 'status')  &&
            property_exists($data->user, 'id') &&
            property_exists($data->user, 'settings')
@@ -300,7 +305,7 @@ abstract class Phoursquare_Service
         }
 
         if(property_exists($data->user, 'friendstatus') &&
-           $data->user->friendstatus = 'friend'
+           $data->user->friendstatus == 'friend'
         ) {
             require_once 'Phoursquare/User/Friend.php';
             return new Phoursquare_User_Friend($data->user, $this);
@@ -411,5 +416,245 @@ abstract class Phoursquare_Service
             $this->getAuthenticatedUser()
         );
     }
+    
+    /**
+     *
+     * @param integer|Phoursquare_User_AbstractUser $user
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function sendFriendRequest($user)
+    {
+        $uid  = $this->_checkFriendRequest($user);
+        $user = $this->_getUser($uid, time());
+
+        $status = $user->getFriendstatus();
+        if($status == 'friend' ||
+           $status == 'pendingthem' ||
+           $status == 'pendingyou'
+        ) {
+            return $user;
+        }
+
+        try {
+            $data = $this->getRequest()
+                         ->sendFriendRequest($uid);
+        } catch (Exception $e) {
+            throw new Exception('Can\'t establish friendship, ' .
+                                'the user maybe blocked you');
+        }
+
+        return $this->_getUser(
+            $data->user->id,
+            'pending-friendship-' . $data->user->id
+        );
+    }
+
+    /**
+     *
+     * @param integer|Phoursquare_User_AbstractUser $user
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function approveFriendRequest($user)
+    {
+        $uid  = $this->_checkFriendRequest($user);
+        $user = $this->_getUser($uid, time());
+
+        $data = $this->getRequest()
+                     ->approveFriendRequest($uid);
+
+        return $this->getUser($data->user->id);
+    }
+
+    /**
+     *
+     * @param integer|Phoursquare_User_AbstractUser $user
+     * @return Phoursquare_User_AbstractUser
+     */
+    public function denyFriendRequest($user)
+    {
+        $uid  = $this->_checkFriendRequest($user);
+        $user = $this->_getUser($uid, time());
+
+        $data = $this->getRequest()
+                     ->denyFriendRequest($uid);
+
+        return $this->getUser($data->user->id);
+        
+    }
+
+    /**
+     *
+     * @param integer|Phoursquare_User_AbstractUser $user
+     * @return Phoursquare_UsersList
+     */
+    public function getPendingFriendRequests()
+    {
+        $data = $this->getRequest()
+                     ->getPendingFriendRequests();
+
+        if(!property_exists($data, 'requests')) {
+            throw new Exception('No valid request response returned.');
+        }
+
+        require_once 'Phoursquare/FriendRequestsList.php';
+        return new Phoursquare_FriendRequestsList(
+            $data->requests,
+            $this
+        );
+    }
+
+    /**
+     *
+     * @param integer|Phoursquare_User_AbstractUser $user
+     * @return void
+     */
+    protected function _checkFriendRequest($user)
+    {
+        if(!is_object($user) && !is_int($user) && !is_numeric($user)) {
+            throw new InvalidArgumentException('$user is no integer or object');
+        }
+
+        if(is_object($user)) {
+            if($user instanceof Phoursquare_User_Friend) {
+                throw new InvalidArgumentException('$user is already a Friend');
+            }
+
+            if(!($user instanceof Phoursquare_User_AbstractUser)) {
+                throw new InvalidArgumentException('$user is no valid instance' .
+                                                   'of Phoursquare_User_AbstractUser');
+            }
+        }
+
+        if(is_object($user)) {
+            $user = $user->getId();
+        }
+
+        return $user;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Venue_Tip $tip
+     * @param integer|Phoursquare_Venue $venue
+     * @return Phoursquare_Venue_Tip
+     */
+    public function addTip(Phoursquare_Venue_Tip $tip, $venue = null)
+    {
+        $related = $tip->getRelatedVenue();
+        if(!is_null($venue) &&
+           is_object($venue) &&
+           $venue instanceof Phoursquare_Venue
+        ) {
+            $related = $venue;
+        }
+
+        if(is_int($venue) ||
+           is_numeric($venue)
+        ) {
+            $related = $this->getVenue($venue);
+        }
+
+        if(!is_object($related) ||
+           !$related instanceof Phoursquare_Venue
+        ) {
+            throw new Exception('Please pass-in a venue/id via $venue or ' .
+                                'set a Venue via setRelatedVenue on the Tip');
+        }
+
+        $type = 'tip';
+        if($tip->getMarkedAsToDo()) {
+            $type = 'todo';
+        }
+
+
+        $data = $this->getRequest()
+                     ->saveTip(
+                        $tip->getText(),
+                        $venue->getId(),
+                        $type
+                     );
+
+
+        if(!property_exists($data, 'tip')) {
+            throw new Exception('No valid request response returned.');
+        }
+
+        $tip = new Phoursquare_Venue_Tip($data);
+        $tip->setRelatedVenue($venue->getId());
+
+        return $tip;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Venue_Tip $tip
+     * @return boolean
+     */
+    public function markTipAsToDo(Phoursquare_Venue_Tip $tip)
+    {
+        $this->_checkMarking($tid);
+
+        try {
+            $data = $this->getRequest()
+                         ->markTipAsToDo($tip->getId());
+        } catch (Exception $e) {
+            throw new Exception('Tip could not eb marked as Todo'.
+                                'Already on yout todo list?');
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Venue_Tip $tip
+     * @return boolean
+     */
+    public function unMarkToDo(Phoursquare_Venue_Tip $tip)
+    {
+        $this->_checkMarking($tid);
+        
+        try {
+            $data = $this->getRequest()
+                         ->unMarkTipToDo($tip->getId());
+        } catch (Exception $e) {
+            throw new Exception('Maybe it is already unmarked?');
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Venue_Tip $tip
+     * @return boolean
+     */
+    public function markAsDone(Phoursquare_Venue_Tip $tip)
+    {
+        $this->_checkMarking($tid);
+
+        try {
+            $data = $this->getRequest()
+                         ->markTipAsDone($tip->getId());
+        } catch (Exception $e) {
+            throw new Exception('Maybe it is already marked as done?');
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @param Phoursquare_Venue_Tip $tip
+     * @return void
+     */
+    protected function _checkMarking($tid)
+    {
+        if(is_null($tip->getId())) {
+            throw new Exception('The Tip must saved before marking it!');
+        }
+    }
+
+
 
 }

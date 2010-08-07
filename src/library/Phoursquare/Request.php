@@ -357,13 +357,202 @@ class Phoursquare_Request
             $client->setParameterPost('private', (bool)$options['private']);
         }
 
-        $this->getCache()->deleteAllByTag(array(
-            self::CACHE_TAG_AUTHENTICATED_USER,
-            self::CACHE_TAG_USER_HISTORY,
-            $venueId
-        ));
+        if($this->hasCache()) {
+            $this->getCache()->deleteAllByTag(array(
+                self::CACHE_TAG_AUTHENTICATED_USER,
+                self::CACHE_TAG_USER_HISTORY,
+                $venueId
+            ));
+        }
 
-        return $this->_fetch($client, $options);
+        return $this->_fetch($client, $options, false);
+     }
+
+     /**
+      *
+      * @param integer $uid
+      * @return stdClass
+      */
+     public function sendFriendRequest($uid)
+     {
+        if(!is_int($uid) && !is_numeric($uid)) {
+            throw new InvalidArgumentException('Given-in $uid is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/friend/sendrequest.json');
+
+        $client->setParameterPost('uid', (string)$uid);
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @param integer $uid
+      * @return stdClass
+      */
+     public function approveFriendRequest($uid)
+     {
+        if(!is_int($uid) && !is_numeric($uid)) {
+            throw new InvalidArgumentException('Given-in $uid is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/friend/approve.json');
+
+        $client->setParameterPost('uid', (string)$uid);
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @param integer $uid
+      * @return stdClass
+      */
+     public function denyFriendRequest($uid)
+     {
+        if(!is_int($uid) && !is_numeric($uid)) {
+            throw new InvalidArgumentException('Given-in $uid is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/friend/deny.json');
+
+        $client->setParameterPost('uid', (string)$uid);
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @return stdClass
+      */
+     public function getPendingFriendRequests()
+     {
+        $client = $this->getClient();
+        $client->setUri(self::FS_API_URI . '/v1/friend/requests.json');
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @param string $text
+      * @param integer $venueId
+      * @param string $type
+      * @return stdClass
+      */
+     public function saveTip($text, $venueId, $type = 'todo')
+     {
+        if(!is_string($text)) {
+            throw new InvalidArgumentException('Given-in $text is no string');
+        }
+        if(empty($text) || trim($text) == '') {
+            throw new InvalidArgumentException('Given-in $text is empty');
+        }
+
+        if(!is_int($venueId) && !is_numeric($venueId)) {
+            throw new InvalidArgumentException('Given-in $venueId is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/addtip.json');
+
+        $client->setParameterPost('vid', $venueId);
+        $client->setParameterPost('text', $text);
+        $client->setParameterPost('type', $type);
+
+        if($this->hasCache()) {
+            $this->getCache()->deleteAllByTag(array(
+                $venueId
+            ));
+        }
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @param integer $tipId
+      * @return stdClass
+      */
+     public function markTipAsToDo($tipId)
+     {
+        if(!is_int($tipId) && !is_numeric($tipId)) {
+            throw new InvalidArgumentException('Given-in $tipId is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/tip/marktodo.json');
+
+        $client->setParameterPost('tid', (string)$tipId);
+
+        if($this->hasCache()) {
+            $this->getCache()->deleteAllByTag(array(
+                $tipId
+            ));
+        }
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @param integer $tipId
+      * @return stdClass
+      */
+     public function unMarkTipToDo($tipId)
+     {
+        if(!is_int($tipId) && !is_numeric($tipId)) {
+            throw new InvalidArgumentException('Given-in $tipId is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/tip/unmark.json');
+
+        $client->setParameterPost('tid', (string)$tipId);
+
+        if($this->hasCache()) {
+            $this->getCache()->deleteAllByTag(array(
+                $tipId
+            ));
+        }
+
+        return $this->_fetch($client, array(), false);
+     }
+
+     /**
+      *
+      * @param integer $tipId
+      * @return stdClass
+      */
+     public function markTipAsDone($tipId)
+     {
+        if(!is_int($tipId) && !is_numeric($tipId)) {
+            throw new InvalidArgumentException('Given-in $tipId is no integer');
+        }
+
+        $client = $this->getClient();
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setUri(self::FS_API_URI . '/v1/tip/markdone.json');
+
+        $client->setParameterPost('tid', (string)$tipId);
+
+        if($this->hasCache()) {
+            $this->getCache()->deleteAllByTag(array(
+                $tipId
+            ));
+        }
+
+        return $this->_fetch($client, array(), false);
      }
 
      /**
