@@ -57,8 +57,8 @@
     if(!PhoursquareSingleton::hasAuthInstance()) {
         require_once 'Phoursquare/Auth/Http.php';
         $auth    = new Phoursquare_Auth_Http();
-        $auth->setUsername('sven.eisenschmidt@gmail.com');
-        $auth->setPassword('svenei86');
+        $auth->setUsername('user@isp.tld');
+        $auth->setPassword('mysecretpassword');
         $service->setAuth($auth);
     }
 
